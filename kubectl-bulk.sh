@@ -34,7 +34,7 @@ fi
 USAGE:
   # get all in the yaml
   kubectl bulk <resourceType>[<parameters>]
-  # get all descriptions in a file with given type (yaml is default)
+  # get all definitions in a file with given type (yaml is default)
   kubectl bulk <resourceType>[<parameters>] get filename json|yaml
   # get all and copy defined parameter's value with given value
   kubectl bulk <resourceType>[<parameters>] create parameter oldValue newValue
@@ -76,11 +76,12 @@ get() {
 
  if [[ "$FILENAME" != "" ]];then
     CMD_DETAIL="-o ${FORMAT} > ${FILENAME}.${FORMAT}";
+    echo "All definitions will be written in ${FILENAME}.${FORMAT}";
 else
     CMD_DETAIL="-o ${FORMAT}";
  fi
 
- echo "kubectl get ${GET_CMD} ${CMD_DETAIL}";
+ loginfo "kubectl get ${GET_CMD} ${CMD_DETAIL}";
  eval "kubectl get ${GET_CMD} ${CMD_DETAIL}";
 }
 
@@ -142,7 +143,7 @@ action_call() {
 
 read_parameters() {
 
-if [[ "$#" -lt 3 ]]; then
+if [[ "$#" -lt 1 ]]; then
         usage "";
         exit 0
 fi
