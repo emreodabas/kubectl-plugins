@@ -6,10 +6,11 @@ This plugin useful for Bulk operations.
 
 You can easily do bulk operations on all resource types like deployments, services, pods etc.
 `Bulk plugin` has 5 main abilities for now :-)
+ - **`get`**
  - **`create`**
  - **`update`**
- - **`add`**
  - **`delete`**
+ - **`rollout`** (will be soon)
 
 ### Usage 
 
