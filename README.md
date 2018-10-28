@@ -15,11 +15,13 @@ You can easily do bulk operations on all resource types like deployments, servic
 ### Usage 
 
 ```
-   kubectl bulk <resourceType> [<parameters>]                                             : get all in the yaml
-   kubectl bulk <resourceType> [<parameters>] create parameter oldValue newValue          : get all and copy defined parameter's value with given value
-   kubectl bulk <resourceType> [<parameters>] update parameter oldValue newValue          : get all and copy defined parameter's value with given value
-   kubectl bulk <resourceType> [<parameters>] add parameter value                         : get all and add defined parameter with value
-   kubectl bulk <resourceType> [<parameters>] delete parameter value                      : get all and delete defined parameter with given value                
+  kubectl bulk [resourceType][<parameters>]                                             : get all in the yaml
+  kubectl bulk [resourceType][<parameters>] get filename json|yaml                      : get all descriptions in a file with given type (yaml is default)
+  kubectl bulk [resourceType][<parameters>] create parameter oldValue newValue          : get all and copy defined parameter's value with given value
+  kubectl bulk [resourceType][<parameters>] update parameter oldValue newValue          : get all and copy defined parameter's value with given value
+  kubectl bulk [resourceType][<parameters>] add parameter value                         : get all and add defined parameter with value
+  kubectl bulk [resourceType][<parameters>] delete parameter value                      : get all and delete defined parameter with given value
+  kubectl bulk [resourceType][<parameters>] delete                                     : get all and delete all resources with given resource type
 
 ``` 
 ### Samples
