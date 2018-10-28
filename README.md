@@ -1,7 +1,7 @@
 
 # kubectl-plugins
 ---
-## `Kubectl Bulk Plugin`
+# `Kubectl Bulk Plugin`
 
 This plugin useful for Bulk operations.
 
