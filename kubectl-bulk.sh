@@ -32,13 +32,22 @@ if [ -n "$1" ] ; then
 fi
  cat <<"EOF"
 USAGE:
-  kubectl bulk [resourceType][<parameters>]                                             : get all in the yaml
-  kubectl bulk [resourceType][<parameters>] get filename json|yaml                      : get all descriptions in a file with given type (yaml is default)
-  kubectl bulk [resourceType][<parameters>] create parameter oldValue newValue          : get all and copy defined parameter's value with given value
-  kubectl bulk [resourceType][<parameters>] update parameter oldValue newValue          : get all and copy defined parameter's value with given value
-  kubectl bulk [resourceType][<parameters>] add parameter value                         : get all and add defined parameter with value
-  kubectl bulk [resourceType][<parameters>] delete parameter value                      : get all and delete defined parameter with given value
-  kubectl bulk [resourceType][<parameters>] delete                                     : get all and delete all resources with given resource type
+  # get all in the yaml
+  kubectl bulk <resourceType>[<parameters>]
+  # get all definitions in a file with given type (yaml is default)
+  kubectl bulk <resourceType>[<parameters>] get filename json|yaml
+  # get all and copy defined parameter's value with given value
+  kubectl bulk <resourceType>[<parameters>] create parameter oldValue newValue
+  # get all and copy defined parameter's value with given value
+  kubectl bulk <resourceType>[<parameters>] update parameter oldValue newValue
+  # get all and add defined parameter with value
+  kubectl bulk <resourceType>[<parameters>] add parameter value
+  # get all and delete defined parameter with given value
+  kubectl bulk <resourceType>[<parameters>] delete parameter value
+  # get all and delete all resources with given resource type
+  kubectl bulk <resourceType>[<parameters>] delete
+  # get all and rollout with given parameters
+  kubectl bulk <resourceType>[<parameters>] rollout history|pause|resume|status|undo <paramaters>
 EOF
 
 }
@@ -47,13 +56,32 @@ EOF
 
 get() {
  CMD_DETAIL="-o yaml";
- if [[ "$ACTION_P2" != "" ]];then
-     CMD_DETAIL="-o ${ACTION_P2} > ./${ACTION_P1}.${ACTION_P2}";
+ FORMAT="yaml";
+ FILENAME="";
 
- elif [[ "$ACTION_P1" != "" ]];then
-     CMD_DETAIL="${CMD_DETAIL} > ${ACTION_P1}.yaml";
+ if [[ "$ACTION_P2" != "" ]];then
+     if [[ "$ACTION_P2" == "yaml" || "$ACTION_P2" == "json" ]];then
+        FORMAT="$ACTION_P2";
+        else
+        FILENAME="$ACTION_P2";
+     fi
  fi
-loginfo "kubectl get ${GET_CMD} ${CMD_DETAIL}";
+ if [[ "$ACTION_P1" != "" ]];then
+     if [[ "$ACTION_P1" == "yaml" || "$ACTION_P1" == "json" ]];then
+        FORMAT="$ACTION_P1";
+        else
+        FILENAME=$ACTION_P1;
+     fi
+ fi
+
+ if [[ "$FILENAME" != "" ]];then
+    CMD_DETAIL="-o ${FORMAT} > ${FILENAME}.${FORMAT}";
+    echo "All definitions will be written in ${FILENAME}.${FORMAT}";
+else
+    CMD_DETAIL="-o ${FORMAT}";
+ fi
+
+ loginfo "kubectl get ${GET_CMD} ${CMD_DETAIL}";
  eval "kubectl get ${GET_CMD} ${CMD_DETAIL}";
 }
 
@@ -75,9 +103,11 @@ update() {
        eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
 }
 
-add() {
-## it seems not possible for now
-            echo "adding $ACTION_P1: $ACTION_P2 for all $GET_CMD";
+
+rollout() {
+echo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
+eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
+
 }
 
 delete() {
@@ -102,17 +132,21 @@ action_call() {
       create;
     elif [[ $CMD == "update" ]];then
      update;
-    elif [[ $CMD == "add" ]];then
-      delete;
     elif [[ $CMD == "get" ]];then
       get;
     elif [[ $CMD == "delete" ]];then
       delete;
-
+    elif [[ $CMD == "rollout" ]];then
+      rollout;
     fi
 }
 
 read_parameters() {
+
+if [[ "$#" -lt 1 ]]; then
+        usage "";
+        exit 0
+fi
 
  COUNTER=1
  IS_GET=true
@@ -121,7 +155,7 @@ read_parameters() {
          while [ $COUNTER -le "$#" ]; do
            loginfo "${@:$COUNTER:1}";
 
-            case "${@:$COUNTER:1}" in  "get"|"create"|"update"|"add"|"delete")
+            case "${@:$COUNTER:1}" in  "get"|"create"|"update"|"delete"|"rollout")
                   CMD=${@:$COUNTER:1};
                   CMD_INDEX=$COUNTER;
                  IS_GET=false;
@@ -142,7 +176,6 @@ read_parameters() {
              loginfo $CMD_INDEX;
    if [[ $CMD == "" ]];then
       get;
-      # usage "command not found  "create"|"update"|"add"|"delete" "
    fi
 
        ACTION_P1=${@:$((CMD_INDEX+1)):1};
