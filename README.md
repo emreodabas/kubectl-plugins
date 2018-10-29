@@ -8,7 +8,7 @@ This plugin useful for Bulk operations.
 You can easily do bulk operations on all resource types like deployments, services, pods etc.
 `Bulk plugin` has 5 main abilities for now :-)
  
-  ##   **`bulk get`**  
+  ##   **`bulk get`** ---draft  
  `bulk .. get` is just give you easy way for getting all resource definitions in yaml or json.
  
   <details>
@@ -172,7 +172,7 @@ All descriptions will be written in file.json
  </p>
 </details> 
 
- ##   **`bulk delete`**  
+ ##   **`bulk delete`**  -- draft
 `bulk .. get` is just give you easy way for getting all resources yaml or json.
 `bulk .. get` is also default mode for `Bulk plugin`
 
@@ -216,7 +216,7 @@ All descriptions will be written in file.json
  </p>
 </details> 
 
- ##   **`bulk rollout`**  
+ ##   **`bulk rollout`**  -- draft
 `bulk .. get` is just give you easy way for getting all resources yaml or json.
 `bulk .. get` is also default mode for `Bulk plugin`
 
