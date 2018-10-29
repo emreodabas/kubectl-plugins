@@ -12,7 +12,7 @@ You can easily do bulk operations on all resource types like deployments, servic
  `bulk .. get` is just give you easy way for getting all resource definitions in yaml or json.
  
   <details>
-  <summary><b>Usage<b></summary>
+  <summary><b>Usage</b></summary>
  <p>
   
   ``` 
@@ -26,7 +26,7 @@ You can easily do bulk operations on all resource types like deployments, servic
    </p>
  </details> 
  <details>
-   <summary><b>Sample<b></summary>
+   <summary><b>Sample</b></summary>
  <p>
   
    ``` 
@@ -56,7 +56,7 @@ You can easily do bulk operations on all resource types like deployments, servic
 `bulk .. list` is also default mode for `Bulk plugin`
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -70,7 +70,7 @@ You can easily do bulk operations on all resource types like deployments, servic
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -101,7 +101,7 @@ All definitions will be written in file.json
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/created. Standard not created error will be throwed.
   
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -113,7 +113,7 @@ All definitions will be written in file.json
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -135,7 +135,7 @@ $ kubectl bulk service create name service1 service2
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/updated. Standard not updated error will be throwed.
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -147,7 +147,7 @@ $ kubectl bulk service create name service1 service2
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -177,7 +177,7 @@ All descriptions will be written in file.json
 `bulk .. get` is also default mode for `Bulk plugin`
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -191,7 +191,7 @@ All descriptions will be written in file.json
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -221,7 +221,7 @@ All descriptions will be written in file.json
 `bulk .. get` is also default mode for `Bulk plugin`
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -235,7 +235,7 @@ All descriptions will be written in file.json
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
