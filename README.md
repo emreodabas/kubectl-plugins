@@ -8,26 +8,69 @@ This plugin useful for Bulk operations.
 You can easily do bulk operations on all resource types like deployments, services, pods etc.
 `Bulk plugin` has 5 main abilities for now :-)
  
- ##   **`bulk get`**  
-`bulk .. get` is just give you easy way for getting all resource definitions in yaml or json.
-`bulk .. get` is also default mode for `Bulk plugin`
+  ##   **`bulk get`** ---draft  
+ `bulk .. get` is just give you easy way for getting all resource definitions in yaml or json.
+ 
+  <details>
+  <summary><b>Usage</b></summary>
+ <p>
+  
+  ``` 
+   # get all resource definitions in yaml (default format) format 
+   kubectl bulk <resourceType> [<parameters>]
+   # get all resource definitions in json format  
+   kubectl bulk <resourceType> [<parameters>] get json
+   # get all resource definitions in to a file with json format  
+   kubectl bulk <resourceType> [<parameters>] get filename json  
+  ``` 
+   </p>
+ </details> 
+ <details>
+   <summary><b>Sample</b></summary>
+ <p>
+  
+   ``` 
+ $ kubectl bulk deploy -n test 
+ apiVersion: v1
+ items:
+ - apiVersion: extensions/v1beta1
+   kind: Deployment
+   name: sample-app
+   ...
+ apiVersion: v1
+ items:
+ - apiVersion: extensions/v1beta1
+   kind: Deployment
+   name: another-sample-app
+ ...
+  
+ $ kubectl bulk service get file json
+ All definitions will be written in file.json
+ 
+  ```
+  </p>
+ </details> 
+ 
+ ##   **`bulk list`**  
+`bulk .. list` is just give you easy way for getting all resource definitions in yaml or json.
+`bulk .. list` is also default mode for `Bulk plugin`
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
-  # get all resource definitions in yaml (default format) format 
+  # list all resource definitions in yaml (default format) format 
   kubectl bulk <resourceType> [<parameters>]
-  # get all resource definitions in json format  
-  kubectl bulk <resourceType> [<parameters>] get json
-  # get all resource definitions in to a file with json format  
-  kubectl bulk <resourceType> [<parameters>] get filename json  
+  # list all resource definitions in json format  
+  kubectl bulk <resourceType> [<parameters>] list json
+  # list all resource definitions in to a file with json format  
+  kubectl bulk <resourceType> [<parameters>] list filename json  
  ``` 
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -45,7 +88,7 @@ items:
   name: another-sample-app
 ...
  
-$ kubectl bulk service get file json
+$ kubectl bulk service list file json
 All definitions will be written in file.json
 
  ```
@@ -58,7 +101,7 @@ All definitions will be written in file.json
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/created. Standard not created error will be throwed.
   
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -70,7 +113,7 @@ All definitions will be written in file.json
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -92,7 +135,7 @@ $ kubectl bulk service create name service1 service2
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/updated. Standard not updated error will be throwed.
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -104,7 +147,7 @@ $ kubectl bulk service create name service1 service2
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -129,12 +172,12 @@ All descriptions will be written in file.json
  </p>
 </details> 
 
- ##   **`bulk delete`**  
+ ##   **`bulk delete`**  -- draft
 `bulk .. get` is just give you easy way for getting all resources yaml or json.
 `bulk .. get` is also default mode for `Bulk plugin`
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -148,7 +191,7 @@ All descriptions will be written in file.json
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 
@@ -173,12 +216,12 @@ All descriptions will be written in file.json
  </p>
 </details> 
 
- ##   **`bulk rollout`**  
+ ##   **`bulk rollout`**  -- draft
 `bulk .. get` is just give you easy way for getting all resources yaml or json.
 `bulk .. get` is also default mode for `Bulk plugin`
 
  <details>
- <summary><b>Usage<b></summary>
+ <summary><b>Usage</b></summary>
 <p>
  
  ``` 
@@ -192,7 +235,7 @@ All descriptions will be written in file.json
   </p>
 </details> 
 <details>
-  <summary><b>Sample<b></summary>
+  <summary><b>Sample</b></summary>
 <p>
  
   ``` 

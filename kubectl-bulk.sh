@@ -18,6 +18,7 @@ CMD="";
 GET_CMD="";
 CH_CMD="";
 RESOURCE_TYPE="";
+CMD_INDEX=0;
 
  loginfo(){
    if [[ $DEBUG == true ]]; then
@@ -31,30 +32,34 @@ if [ -n "$1" ] ; then
     echo $1;
 fi
  cat <<"EOF"
+
 USAGE:
-  # get all in the yaml
-  kubectl bulk <resourceType>[<parameters>]
-  # get all definitions in a file with given type (yaml is default)
-  kubectl bulk <resourceType>[<parameters>] get filename json|yaml
-  # get all and copy defined parameter's value with given value
-  kubectl bulk <resourceType>[<parameters>] create parameter oldValue newValue
-  # get all and copy defined parameter's value with given value
-  kubectl bulk <resourceType>[<parameters>] update parameter oldValue newValue
-  # get all and add defined parameter with value
-  kubectl bulk <resourceType>[<parameters>] add parameter value
-  # get all and delete defined parameter with given value
-  kubectl bulk <resourceType>[<parameters>] delete parameter value
-  # get all and delete all resources with given resource type
-  kubectl bulk <resourceType>[<parameters>] delete
-  # get all and rollout with given parameters
-  kubectl bulk <resourceType>[<parameters>] rollout history|pause|resume|status|undo <paramaters>
+    kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout  [<parameters>]
 EOF
 
 }
 
-
-
 get() {
+
+echo "$CH_CMD fields are getting";
+eval "kubectl get ${GET_CMD} -o yaml > temp.yaml ";
+CMD_DETAIL="";
+INDEX=$((CMD_INDEX+1));
+while [ "$INDEX" -le "$#" ]; do
+CMD_DETAIL="$CMD_DETAIL -e ${@:$INDEX:1}:";
+let INDEX=INDEX+1;
+done;
+LINES=( $(eval "grep -n -e name: $CMD_DETAIL temp.yaml | grep -Eo '^[^:]+'"));
+COUNT=${#LINES[@]}
+INDEX=0
+while [ "$INDEX" -lt "$COUNT" ]; do
+ eval "sed '${LINES[$INDEX]}!d' temp.yaml"  ;
+    let INDEX=INDEX+1;
+done
+eval "rm temp.yaml";
+}
+
+list() {
  CMD_DETAIL="-o yaml";
  FORMAT="yaml";
  FILENAME="";
@@ -86,26 +91,47 @@ else
 }
 
 create() {
- echo "creating new resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
+
        loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl create -f - ";
-        case "$RESOURCE_TYPE" in  "svc"|"service")
+  if [[ $ACTION_P3 == "" ]];then
+  echo "creating new resource with removing $ACTION_P1: line and added to $ACTION_P1: $ACTION_P2 for all $GET_CMD";
+    case "$RESOURCE_TYPE" in  "svc"|"service")
+            echo "!!!WARNING!!! CLUSTERIP and NODEPORT fields are REMOVED while creating new one";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' |sed 's/BULKPLUGINTEMPVAR/$ACTION_P1: $ACTION_P2/' | sed '/clusterIP:/d' |  sed '/nodePort:/d' | kubectl create -f - ";
+        ;;
+        *)
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' |sed 's/BULKPLUGINTEMPVAR/$ACTION_P1: $ACTION_P2/' | kubectl create -f - ";
+    esac
+  else
+  echo "creating new resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
+    case "$RESOURCE_TYPE" in  "svc"|"service")
             echo "!!!WARNING!!! CLUSTERIP and NODEPORT fields are REMOVED while creating new one";
             eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | sed '/clusterIP:/d' |  sed '/nodePort:/d' | kubectl create -f - ";
         ;;
         *)
             eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl create -f - ";
-        esac
+    esac
+  fi
+
 }
 
 update() {
-  echo "updating new resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
-       loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
-       eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
+  if [[ $ACTION_P3 == "" ]];then
+    echo "updating resource with removing $ACTION_P1: line  and added $ACTION_P1: $ACTION_P2 for all $GET_CMD";
+    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
+    eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' |sed 's/BULKPLUGINTEMPVAR/$ACTION_P1: $ACTION_P2/' | kubectl replace -f - ";
+  else
+    echo "updating resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
+    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
+    eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
+  fi
+
 }
 
 
 rollout() {
-echo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
+echo "$RESOURCE_TYPEs are being rollout $CH_CMD"
+loginfo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
 eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
 
 }
@@ -133,7 +159,9 @@ action_call() {
     elif [[ $CMD == "update" ]];then
      update;
     elif [[ $CMD == "get" ]];then
-      get;
+      get "$@";
+    elif [[ $CMD == "list" ]];then
+      list;
     elif [[ $CMD == "delete" ]];then
       delete;
     elif [[ $CMD == "rollout" ]];then
@@ -150,12 +178,11 @@ fi
 
  COUNTER=1
  IS_GET=true
- CMD_INDEX=0
  RESOURCE_TYPE="$1"
          while [ $COUNTER -le "$#" ]; do
            loginfo "${@:$COUNTER:1}";
 
-            case "${@:$COUNTER:1}" in  "get"|"create"|"update"|"delete"|"rollout")
+            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"update"|"delete"|"rollout")
                   CMD=${@:$COUNTER:1};
                   CMD_INDEX=$COUNTER;
                  IS_GET=false;
@@ -175,7 +202,7 @@ fi
              loginfo $GET_CMD ;
              loginfo $CMD_INDEX;
    if [[ $CMD == "" ]];then
-      get;
+      list;
    fi
 
        ACTION_P1=${@:$((CMD_INDEX+1)):1};
@@ -189,7 +216,7 @@ fi
 main() {
 
     read_parameters "$@";
-    action_call;
+    action_call "$@";
 
 }
 
