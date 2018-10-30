@@ -92,24 +92,24 @@ else
 
 create() {
 
-       loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl create -f - ";
+       loginfo "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl create -f - ";
   if [[ $ACTION_P3 == "" ]];then
   echo "creating new resource with removing $ACTION_P1: line and added to $ACTION_P1: $ACTION_P2 for all $GET_CMD";
     case "$RESOURCE_TYPE" in  "svc"|"service")
             echo "!!!WARNING!!! CLUSTERIP and NODEPORT fields are REMOVED while creating new one";
-            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' |sed 's/BULKPLUGINTEMPVAR/$ACTION_P1: $ACTION_P2/' | sed '/clusterIP:/d' |  sed '/nodePort:/d' | kubectl create -f - ";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | sed '|clusterIP:|d' |  sed '|nodePort:|d' | kubectl create -f - ";
         ;;
         *)
-            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' |sed 's/BULKPLUGINTEMPVAR/$ACTION_P1: $ACTION_P2/' | kubectl create -f - ";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | kubectl create -f - ";
     esac
   else
   echo "creating new resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
     case "$RESOURCE_TYPE" in  "svc"|"service")
             echo "!!!WARNING!!! CLUSTERIP and NODEPORT fields are REMOVED while creating new one";
-            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | sed '/clusterIP:/d' |  sed '/nodePort:/d' | kubectl create -f - ";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | sed '|clusterIP:|d' |  sed '|nodePort:|d' | kubectl create -f - ";
         ;;
         *)
-            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl create -f - ";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | kubectl create -f - ";
     esac
   fi
 
@@ -118,12 +118,12 @@ create() {
 update() {
   if [[ $ACTION_P3 == "" ]];then
     echo "updating resource with removing $ACTION_P1: line  and added $ACTION_P1: $ACTION_P2 for all $GET_CMD";
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
-    eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' |sed 's/BULKPLUGINTEMPVAR/$ACTION_P1: $ACTION_P2/' | kubectl replace -f - ";
+    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - ";
+    eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | kubectl replace -f - ";
   else
     echo "updating resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
-    eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
+    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - ";
+    eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | kubectl replace -f - ";
   fi
 
 }
@@ -147,8 +147,8 @@ CMD_DETAIL="";
     loginfo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} |  xargs kubectl delete ${GET_CMD} ";
     eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl delete ${GET_CMD} ";;
   *)
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
-    eval "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
+    loginfo "kubectl get ${GET_CMD} -o yaml | sed '|$CMD_DETAIL|d' | kubectl replace -f - ";
+    eval "kubectl get ${GET_CMD} -o yaml | sed '|$CMD_DETAIL|d' | kubectl replace -f - ";
  esac
 }
 
