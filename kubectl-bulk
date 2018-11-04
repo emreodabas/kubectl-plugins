@@ -47,7 +47,7 @@ INDEX=0
 COUNT=${#NAMES[@]}
 NAME_DETAIL=""
 while [ "$INDEX" -lt "$COUNT" ]; do
-NAME_DETAIL+=" | sed '0,/- apiVersion:/s//$RESOURCE_TYPE\/${NAMES[$INDEX]}\n/'"
+NAME_DETAIL+=" | sed '0,/- apiVersion:/s//--> $RESOURCE_TYPE\/${NAMES[$INDEX]}\n/'"
 let INDEX=INDEX+1;
 done;
 
@@ -64,11 +64,10 @@ LINES=( $(eval " grep -e $RESOURCE_TYPE/ -n $CMD_DETAIL temp.yaml | grep -Eo '^[
 COUNT=${#LINES[@]}
 INDEX=0
 while [ "$INDEX" -lt "$COUNT" ]; do
-eval "sed '${LINES[$INDEX]}!d' temp.yaml >> temp2.yaml"   ;
+eval "sed '${LINES[$INDEX]}!d' temp.yaml | sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*\$//g' "   ;
     let INDEX=INDEX+1;
 done
-eval sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*\$//g' temp2.yaml  ;
-eval "rm temp*";
+eval "rm temp.yaml";
 }
 
 list() {
