@@ -8,20 +8,18 @@ This plugin useful for Bulk operations.
 You can easily do bulk operations on all resource types like deployments, services, pods etc.
 `Bulk plugin` has 5 main abilities for now :-)
  
-  ##   **`bulk get`** ---draft  
- `bulk .. get` is just give you easy way for getting all resource definitions in yaml or json.
+  ##   **`bulk get`**  
+ `bulk .. get` is a easy way to get selected fields's values for given resource types. 
+ `bulk .. get` is automatically get resources name, you don't need to add for all command 
+ !!Warning!! `bulk .. get` create a temporary file in path for performance.  
  
   <details>
   <summary><b>Usage</b></summary>
  <p>
   
   ``` 
-   # get all resource definitions in yaml (default format) format 
-   kubectl bulk <resourceType> [<parameters>]
-   # get all resource definitions in json format  
-   kubectl bulk <resourceType> [<parameters>] get json
-   # get all resource definitions in to a file with json format  
-   kubectl bulk <resourceType> [<parameters>] get filename json  
+   # get fields' values for given resource type
+   kubectl bulk <resourceType> [<parameters>] get [<fields>]
   ``` 
    </p>
  </details> 
@@ -30,20 +28,15 @@ You can easily do bulk operations on all resource types like deployments, servic
  <p>
   
    ``` 
- $ kubectl bulk deploy -n test 
- apiVersion: v1
- items:
- - apiVersion: extensions/v1beta1
-   kind: Deployment
-   name: sample-app
-   ...
- apiVersion: v1
- items:
- - apiVersion: extensions/v1beta1
-   kind: Deployment
-   name: another-sample-app
- ...
-  
+ $ kubectl bulk hpa get minReplicas maxReplicas  
+  minReplicas maxReplicas fields are getting
+    name: podinfo
+    maxReplicas: 10
+    minReplicas: 2
+    name: sample-metrics-app-hpa
+    maxReplicas: 10
+    minReplicas: 2
+    
  $ kubectl bulk service get file json
  All definitions will be written in file.json
  
@@ -172,21 +165,19 @@ All descriptions will be written in file.json
  </p>
 </details> 
 
- ##   **`bulk delete`**  -- draft
-`bulk .. get` is just give you easy way for getting all resources yaml or json.
-`bulk .. get` is also default mode for `Bulk plugin`
+ ##   **`bulk delete`**  
+`bulk .. delete` is easy way to bulk delete resources or fields.
 
  <details>
  <summary><b>Usage</b></summary>
 <p>
  
  ``` 
-  # get all resource description in yaml (default format) format 
-  kubectl bulk <resourceType> [<parameters>]
-  # get all resource description in json format  
-  kubectl bulk <resourceType> [<parameters>] get json
-  # get all resource description in to a file with json format  
-  kubectl bulk <resourceType> [<parameters>] get filename json  
+  # delete resources that in requested resource types 
+  kubectl bulk <resourceType> [<parameters>] delete
+  # delete fields of resources that in requested resource types  
+  kubectl bulk <resourceType> [<parameters>] delete <fields>
+  
  ``` 
   </p>
 </details> 
@@ -195,42 +186,30 @@ All descriptions will be written in file.json
 <p>
  
   ``` 
-$ kubectl bulk deploy -n test 
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  name: sample-app
-  ...
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  name: another-sample-app
-...
- 
-$ kubectl bulk service get file json
-All descriptions will be written in file.json
+$ kubectl bulk service -n test delete
+ service/svc-1 deleted
+ service/svc-2 deleted
+ ...
+$ kubectl bulk deploy delete label1
+deployment.extensions/deploy-1 replaced
+deployment.extensions/deploy-2 replaced
 
  ```
  </p>
 </details> 
 
- ##   **`bulk rollout`**  -- draft
-`bulk .. get` is just give you easy way for getting all resources yaml or json.
-`bulk .. get` is also default mode for `Bulk plugin`
+ ##   **`bulk rollout`**  
+`bulk .. rollout` is just give you an easy way to bulk rollout processes.   
+`bulk .. rollout` gives you all rollout features that history|pause|resume|status|undo    
+!!Reminder!! Rollout feature could be used only these resource types -> deployments|daemonsets|statefulsets
 
  <details>
  <summary><b>Usage</b></summary>
 <p>
  
  ``` 
-  # get all resource description in yaml (default format) format 
-  kubectl bulk <resourceType> [<parameters>]
-  # get all resource description in json format  
-  kubectl bulk <resourceType> [<parameters>] get json
-  # get all resource description in to a file with json format  
-  kubectl bulk <resourceType> [<parameters>] get filename json  
+  # do rollout for all resources that requested 
+  kubectl bulk <resourceType> [<parameters>] rollout history|pause|resume|status|undo <rollout parameters>
  ``` 
   </p>
 </details> 
@@ -239,71 +218,29 @@ All descriptions will be written in file.json
 <p>
  
   ``` 
-$ kubectl bulk deploy -n test 
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  name: sample-app
-  ...
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  name: another-sample-app
-...
- 
-$ kubectl bulk service get file json
-All descriptions will be written in file.json
+$ kubectl bulk deploy -n test rollout undo
+ 'deploy's are being rollout undo
+ deployment.extensions/deploy-1
+deployment.extensions/deploy-2
+$  kubectl bulk deploy -n test rollout history
+deployment.extensions/deploy-1 
+REVISION  CHANGE-CAUSE
+1         <none>
+
+deployment.extensions/deploy-2 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
 
  ```
  </p>
 </details> 
  
 
+# Installation 
 
 
-
-### Usage 
-
-```
-
-  # get all descriptions in a file with given type (yaml is default)
-  kubectl bulk <resourceType>[<parameters>] get filename json|yaml
-  # get all and copy defined parameter's value with given value
-  kubectl bulk <resourceType>[<parameters>] create parameter oldValue newValue
-  # get all and copy defined parameter's value with given value
-  kubectl bulk <resourceType>[<parameters>] update parameter oldValue newValue
-  # get all and add defined parameter with value
-  kubectl bulk <resourceType>[<parameters>] add parameter value
-  # get all and delete defined parameter with given value
-  kubectl bulk <resourceType>[<parameters>] delete parameter value
-  # get all and delete all resources with given resource type
-  kubectl bulk <resourceType>[<parameters>] delete
-  # get all and rollout with given parameters
-  kubectl bulk <resourceType>[<parameters>] rollout history|pause|resume|status|undo <paramaters>
-``` 
-### Samples
-
-```   
- $ kubectl bulk all -n develop create namespace develop test
- 
- $ kubectl bulk deploy update image app:v1 app:v2
- 
- $ kubectl bulk pods delete somelabel 
- 
- $ kubectl bulk hpa -n temp delete 
- 
- $ kubectl bulk svc  update type NodePort LoadBalancer
- 
- $ kubectl bulk pods 
-
-```
-
-### Installation 
-
-
-### Linux
+## Linux
 
 Since `Bulk plugin` are written in Bash, you should be able to install
 them to any POSIX environment that has Bash installed.
