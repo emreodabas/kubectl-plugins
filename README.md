@@ -240,7 +240,7 @@ REVISION  CHANGE-CAUSE
 ## Linux
 
  `Bulk plugin` is a Bash script, it would be work in any POSIX environment that has Bash installed. 
- sed|grep|awk commands are prerequisite for `Bulk plugin`
+ sed|grep|awk are prerequisite commands for `Bulk plugin`
 
 ``` bash
 
