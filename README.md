@@ -144,22 +144,19 @@ $ kubectl bulk service create name service1 service2
 <p>
  
   ``` 
-$ kubectl bulk deploy -n test 
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  name: sample-app
-  ...
-apiVersion: v1
-items:
-- apiVersion: extensions/v1beta1
-  kind: Deployment
-  name: another-sample-app
+# Update all deploys image value in test namespace which image version was v1   
+$ kubectl bulk deploy -n test update image v1 v2 
+updating resource with changing image: v1 to image: v2 for all  deploy -n test
+deployment.extensions/deploy-1 replaced
+deployment.extensions/deploy-2 replaced
+deployment.extensions/deploy-3 replaced
 ...
- 
-$ kubectl bulk service get file json
-All descriptions will be written in file.json
+# Update all deploys image value in test namespace with v4
+$ kubectl bulk deploy -n test update image v4 
+updating resource with image: v5 for all  deploy 
+deployment.extensions/deploy-1 replaced
+deployment.extensions/deploy-2 replaced
+deployment.extensions/deploy-3 replaced
 
  ```
  </p>
