@@ -11,6 +11,7 @@ You can easily do bulk operations on all resource types like deployments, servic
   ##   **`bulk get`**  
  `bulk .. get` is a easy way to get selected fields's values for given resource types. 
  `bulk .. get` is automatically get resources name, you don't need to add for all command 
+ !!Warning!! `bulk .. get` create a temporary file in path for performance.  
  
   <details>
   <summary><b>Usage</b></summary>
