@@ -42,21 +42,33 @@ EOF
 get() {
 
 echo "$CH_CMD fields are getting";
-eval "kubectl get ${GET_CMD} -o yaml > temp.yaml ";
+NAMES=( $(eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}" | sed "s/ /\n/g"));
+INDEX=0
+COUNT=${#NAMES[@]}
+NAME_DETAIL=""
+while [ "$INDEX" -lt "$COUNT" ]; do
+NAME_DETAIL+=" | sed '0,/- apiVersion:/s//$RESOURCE_TYPE\/${NAMES[$INDEX]}\n/'"
+let INDEX=INDEX+1;
+done;
+
+loginfo $NAME_DETAIL;
+eval "kubectl get ${GET_CMD} -o yaml $NAME_DETAIL > temp.yaml"
 CMD_DETAIL="";
 INDEX=$((CMD_INDEX+1));
 while [ "$INDEX" -le "$#" ]; do
 CMD_DETAIL="$CMD_DETAIL -e ${@:$INDEX:1}:";
 let INDEX=INDEX+1;
 done;
-LINES=( $(eval "grep -n -e name: $CMD_DETAIL temp.yaml | grep -Eo '^[^:]+'"));
+
+LINES=( $(eval " grep -e $RESOURCE_TYPE/ -n $CMD_DETAIL temp.yaml | grep -Eo '^[^:]+'"));
 COUNT=${#LINES[@]}
 INDEX=0
 while [ "$INDEX" -lt "$COUNT" ]; do
- eval "sed '${LINES[$INDEX]}!d' temp.yaml"  ;
+eval "sed '${LINES[$INDEX]}!d' temp.yaml >> temp2.yaml"   ;
     let INDEX=INDEX+1;
 done
-eval "rm temp.yaml";
+eval sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*\$//g' temp2.yaml  ;
+eval "rm temp*";
 }
 
 list() {
@@ -97,7 +109,7 @@ create() {
   echo "creating new resource with removing $ACTION_P1: line and added to $ACTION_P1: $ACTION_P2 for all $GET_CMD";
     case "$RESOURCE_TYPE" in  "svc"|"service")
             echo "!!!WARNING!!! CLUSTERIP and NODEPORT fields are REMOVED while creating new one";
-            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | sed '|clusterIP:|d' |  sed '|nodePort:|d' | kubectl create -f - ";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | sed '/clusterIP:/d' |  sed '/nodePort:/d' | kubectl create -f - ";
         ;;
         *)
             eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | kubectl create -f - ";
@@ -106,7 +118,7 @@ create() {
   echo "creating new resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
     case "$RESOURCE_TYPE" in  "svc"|"service")
             echo "!!!WARNING!!! CLUSTERIP and NODEPORT fields are REMOVED while creating new one";
-            eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | sed '|clusterIP:|d' |  sed '|nodePort:|d' | kubectl create -f - ";
+            eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | sed '/clusterIP:/d' |  sed '/nodePort:/d' | kubectl create -f - ";
         ;;
         *)
             eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | kubectl create -f - ";
@@ -130,7 +142,7 @@ update() {
 
 
 rollout() {
-echo "$RESOURCE_TYPEs are being rollout $CH_CMD"
+echo "'$RESOURCE_TYPE's are being rollout $CH_CMD"
 loginfo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
 eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
 
@@ -145,10 +157,12 @@ CMD_DETAIL="";
  fi
  case "$CMD_DETAIL"  in ": " | "")
     loginfo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} |  xargs kubectl delete ${GET_CMD} ";
+    echo "'$RESOURCE_TYPE's will be deleting.";
     eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl delete ${GET_CMD} ";;
   *)
     loginfo "kubectl get ${GET_CMD} -o yaml | sed '|$CMD_DETAIL|d' | kubectl replace -f - ";
-    eval "kubectl get ${GET_CMD} -o yaml | sed '|$CMD_DETAIL|d' | kubectl replace -f - ";
+    echo "'$RESOURCE_TYPE's $CMD_DETAIL will be removing.";
+    eval "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
  esac
 }
 
