@@ -235,10 +235,10 @@ REVISION  CHANGE-CAUSE
 </details> 
  
 
-### Installation 
+# Installation 
 
 
-### Linux
+## Linux
 
 Since `Bulk plugin` are written in Bash, you should be able to install
 them to any POSIX environment that has Bash installed.
