@@ -7,9 +7,7 @@ IFS=$'\n\t'
 
 SELF_CMD="$0"
 
-DEBUG=false
-
-
+DEBUG=true
 
 ACTION_P1="";
 ACTION_P2="";
@@ -19,12 +17,6 @@ GET_CMD="";
 CH_CMD="";
 RESOURCE_TYPE="";
 CMD_INDEX=0;
-
- loginfo(){
-   if [[ $DEBUG == true ]]; then
-    echo $1;
-    fi
- }
 
 usage() {
 
@@ -51,7 +43,6 @@ NAME_DETAIL+=" | sed '0,/- apiVersion:/s//--> $RESOURCE_TYPE\/${NAMES[$INDEX]}\n
 let INDEX=INDEX+1;
 done;
 
-loginfo $NAME_DETAIL;
 eval "kubectl get ${GET_CMD} -o yaml $NAME_DETAIL > temp.yaml"
 CMD_DETAIL="";
 INDEX=$((CMD_INDEX+1));
@@ -97,13 +88,11 @@ else
     CMD_DETAIL="-o ${FORMAT}";
  fi
 
- loginfo "kubectl get ${GET_CMD} ${CMD_DETAIL}";
  eval "kubectl get ${GET_CMD} ${CMD_DETAIL}";
 }
 
 create() {
 
-       loginfo "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl create -f - ";
   if [[ $ACTION_P3 == "" ]];then
   echo "creating new resource with removing $ACTION_P1: line and added to $ACTION_P1: $ACTION_P2 for all $GET_CMD";
     case "$RESOURCE_TYPE" in  "svc"|"service")
@@ -129,11 +118,9 @@ create() {
 update() {
   if [[ $ACTION_P3 == "" ]];then
     echo "updating resource with $ACTION_P1: $ACTION_P2 for all $GET_CMD";
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - ";
     eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | kubectl replace -f - ";
   else
     echo "updating resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - ";
     eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | kubectl replace -f - ";
   fi
 
@@ -142,7 +129,6 @@ update() {
 
 rollout() {
 echo "'$RESOURCE_TYPE's are being rollout $CH_CMD"
-loginfo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
 eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubectl rollout ${CH_CMD} ${GET_CMD} ";
 
 }
@@ -155,11 +141,9 @@ CMD_DETAIL="";
      CMD_DETAIL=""$ACTION_P1": ${CMD_DETAIL}";
  fi
  case "$CMD_DETAIL"  in ": " | "")
-    loginfo "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} |  xargs kubectl delete ${GET_CMD} ";
     echo "'$RESOURCE_TYPE's will be deleting.";
     eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl delete ${GET_CMD} ";;
   *)
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed '|$CMD_DETAIL|d' | kubectl replace -f - ";
     echo "'$RESOURCE_TYPE's $CMD_DETAIL will be removing.";
     eval "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
  esac
@@ -193,16 +177,12 @@ fi
  IS_GET=true
  RESOURCE_TYPE="$1"
          while [ $COUNTER -le "$#" ]; do
-           loginfo "${@:$COUNTER:1}";
-
             case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"update"|"delete"|"rollout")
                   CMD=${@:$COUNTER:1};
                   CMD_INDEX=$COUNTER;
                  IS_GET=false;
                  let COUNTER=COUNTER+1;
             esac
-
-            loginfo $IS_GET;
              if [ $IS_GET == true ];then
                 GET_CMD="$GET_CMD ${@:$COUNTER:1}"
               elif [ $IS_GET == false ];then
@@ -210,29 +190,17 @@ fi
              fi
                     let COUNTER=COUNTER+1
              done
-             loginfo "$GET_CMD";
-             loginfo "$CH_CMD";
-             loginfo $GET_CMD ;
-             loginfo $CMD_INDEX;
    if [[ $CMD == "" ]];then
       list;
    fi
-
        ACTION_P1=${@:$((CMD_INDEX+1)):1};
        ACTION_P2=${@:$((CMD_INDEX+2)):1};
        ACTION_P3=${@:$((CMD_INDEX+3)):1};
-       loginfo $ACTION_P1;
-       loginfo $ACTION_P2;
-       loginfo $ACTION_P3;
 
 }
 main() {
-
     read_parameters "$@";
     action_call "$@";
-
 }
-
-
 
 main "$@"
