@@ -200,6 +200,7 @@ deployment.extensions/deploy-2 replaced
  ##   **`bulk rollout`**  
 `bulk .. rollout` is just give you an easy way to bulk rollout processes.   
 `bulk .. rollout` gives you all rollout features that history|pause|resume|status|undo    
+!!Reminder!! Rollout feature could be used only these resource types -> deployments|daemonsets|statefulsets
 
  <details>
  <summary><b>Usage</b></summary>
