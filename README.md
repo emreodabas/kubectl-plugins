@@ -1,5 +1,5 @@
 
-# kubectl-plugins
+# Kubectl Plugins
 ## kubectl bulk
 
 This plugin useful for Bulk operations.
