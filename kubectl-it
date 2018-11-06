@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+[[ -n $DEBUG ]] && set -x
+
+set -eou pipefail
+IFS=$'\n\t'
+
+DEBUG=true
+CMD=""
+NS=""
+POD=""
+SELECTED=""
+
+usage() {
+
+if [ -n "$1" ] ; then
+    echo $1;
+fi
+ cat <<"EOF"
+
+USAGE:
+    kubectl it exec|edit|delete|log <namespace>
+EOF
+
+}
+
+
+it_select(){
+echo "parameter $1 "
+SELECTED="$( ${P1} | fzf -1 --ansi )"
+}
+
+edit(){
+
+if [[ "$1" == " " ]];then
+ NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
+else
+ NS="$1"
+fi
+RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
+
+RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+echo $RESOURCE1
+eval "kubectl edit $RESOURCE_TYPE $RESOURCE1 -n $NS"
+}
+
+log(){
+echo "log"
+}
+
+delete(){
+echo "delete"
+}
+
+exec(){
+if [[ "$1" == " " ]];then
+ NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
+else
+ NS="$1"
+fi
+echo $NS;
+
+POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
+echo $POD;
+
+CONTAINER="$(kubectl get pod $POD -n $NS -o go-template --template '{{range .spec.containers}}{{.name}}{{"\n"}}{{end}}' | fzf -1 --ansi )"
+echo $CONTAINER;
+
+eval "kubectl exec -ti $POD -n $NS -c $CONTAINER -- /bin/sh"
+}
+
+read_parameters(){
+
+ COUNTER=1
+ PARAMETER=" ";
+
+ if [[ "$#" == 1 ]]; then
+    CMD=$1;
+    elif [[ "$#" -gt 1 ]]; then
+        while [ $COUNTER -le "$#" ]; do
+               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"delete"|"logs")
+                    echo "CMD setted"
+                    CMD=${@:$COUNTER:1} ;;
+            *)
+                    PARAMETER="${@:$COUNTER:1}"
+                esac
+                let COUNTER=COUNTER+1
+         done
+ fi
+             if [[ $CMD == "" ]];then
+               CMD="$( printf 'exec\nedit\nlog\ndelete' | fzf -1 --ansi)";
+             fi
+
+                if [[ $CMD  ==  "exec" ]];then
+                 exec $PARAMETER;
+                elif [[ $CMD == "edit" ]];then
+                 edit $PARAMETER;
+                elif [[ $CMD == "log" ]];then
+                 log $PARAMETER;
+                elif [[ $CMD == "delete" ]];then
+                  delete $PARAMETER;
+                fi
+
+
+}
+
+
+main() {
+    read_parameters "$@";
+}
+
+main "$@"

@@ -206,6 +206,9 @@ REVISION  CHANGE-CAUSE
  ```
 </details> 
 
+## kubectl it
+  kubectl interactive gives exec edit delete and logs ability with interactive selection.
+  
 ## kubectl ixec
 
 # Installation 
