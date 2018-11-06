@@ -1,33 +1,37 @@
 
 # kubectl-plugins
 ---
-# `Kubectl Bulk Plugin`
+## `Kubectl Bulk Plugin`
 
 This plugin useful for Bulk operations.
 
 You can easily do bulk operations on all resource types like deployments, services, pods etc.
 `Bulk plugin` has 5 main abilities for now :-)
+ - `bulk .. get` gets selected fields's values for given resource types. 
+ - `bulk .. list` lists all resource definitions in yaml or json.
+ - `bulk .. create` creates new resource from your exist resources.
+ - `bulk .. update` updates bulk resource definitions.
+ - `bulk .. rollout` rollouts given processes.  
+
+
+<summary><h2>Features</h2></summary>
+
+
+ <details>
+ <summary><b>bulk get</b></summary>
  
-  ##   **`bulk get`**  
- `bulk .. get` is a easy way to get selected fields's values for given resource types. 
  `bulk .. get` is automatically get resources name, you don't need to add for all command 
  !!Warning!! `bulk .. get` create a temporary file in path for performance.  
  
-  <details>
-  <summary><b>Usage</b></summary>
- <p>
+ #### Usage
   
   ``` 
    # get fields' values for given resource type
    kubectl bulk <resourceType> [<parameters>] get [<fields>]
   ``` 
-   </p>
- </details> 
- <details>
-   <summary><b>Sample</b></summary>
- <p>
-  
-   ``` 
+ #### Sample
+
+``` 
  $ kubectl bulk hpa get minReplicas maxReplicas  
   minReplicas maxReplicas fields are getting
     name: podinfo
@@ -41,16 +45,15 @@ You can easily do bulk operations on all resource types like deployments, servic
  All definitions will be written in file.json
  
   ```
-  </p>
  </details> 
+  <details>
+ <summary><b>bulk list</b></summary>
  
  ##   **`bulk list`**  
-`bulk .. list` is just give you easy way for getting all resource definitions in yaml or json.
-`bulk .. list` is also default mode for `Bulk plugin`
 
- <details>
- <summary><b>Usage</b></summary>
-<p>
+`bulk .. list` is default mode for `Bulk plugin`
+
+#### Usage
  
  ``` 
   # list all resource definitions in yaml (default format) format 
@@ -60,12 +63,7 @@ You can easily do bulk operations on all resource types like deployments, servic
   # list all resource definitions in to a file with json format  
   kubectl bulk <resourceType> [<parameters>] list filename json  
  ``` 
-  </p>
-</details> 
-<details>
-  <summary><b>Sample</b></summary>
-<p>
- 
+  #### Sample
   ``` 
 $ kubectl bulk deploy -n test 
 apiVersion: v1
@@ -85,17 +83,15 @@ $ kubectl bulk service list file json
 All definitions will be written in file.json
 
  ```
- </p>
-</details> 
+ </details> 
+  <details>
+ <summary><b>bulk create</b></summary>
 
- ##   **`bulk create`**  
-`bulk .. create` is an easy way for creating new resource from your exist resources.
+ ###   **`bulk create`**  
 `bulk .. create` is get your resource definitions and change metadata fields (name,namespaces) as you defined then create the new resources.
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/created. Standard not created error will be throwed.
   
- <details>
- <summary><b>Usage</b></summary>
-<p>
+ #### Usage
  
  ``` 
 # get all definitions and create resources with definitions that parameterName fields changed has oldValue with newValue
@@ -103,11 +99,7 @@ All definitions will be written in file.json
 # get all definitions and create resources with definitions that parameterName fields removed and added with newValue
   kubectl bulk <resourceType>[<parameters>] create parameterName newValue  
  ``` 
-  </p>
-</details> 
-<details>
-  <summary><b>Sample</b></summary>
-<p>
+ #### Sample
  
   ``` 
 $ kubectl bulk deploy -n test create namespace test staging 
@@ -119,17 +111,15 @@ $ kubectl bulk service create name service1 service2
 
 
  ```
- </p>
 </details> 
+  <details>
+ <summary><b>bulk update</b></summary>
 
  ##   **`bulk update`**  
-`bulk .. update` is an easy way for updating bulk resource definitions.
 `bulk .. update` is get your resource definitions and change any fields as you defined then update resource definitions.
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/updated. Standard not updated error will be throwed.
 
- <details>
- <summary><b>Usage</b></summary>
-<p>
+ #### Usage
  
  ``` 
  # get all definitions and update resources with definitions that parameterName fields changed has oldValue with newValue
@@ -137,11 +127,7 @@ $ kubectl bulk service create name service1 service2
 # get all definitions and update resources with definitions that parameterName fields removed and added with newValue
   kubectl bulk <resourceType>[<parameters>] update parameterName newValue  
  ``` 
-  </p>
-</details> 
-<details>
-  <summary><b>Sample</b></summary>
-<p>
+ #### Sample
  
   ``` 
 # Update all deploys image value in test namespace which image version was v1   
@@ -159,15 +145,14 @@ deployment.extensions/deploy-2 replaced
 deployment.extensions/deploy-3 replaced
 
  ```
- </p>
 </details> 
+  <details>
+ <summary><b>bulk delete</b></summary>
 
  ##   **`bulk delete`**  
 `bulk .. delete` is easy way to bulk delete resources or fields.
 
- <details>
- <summary><b>Usage</b></summary>
-<p>
+ #### Usage
  
  ``` 
   # delete resources that in requested resource types 
@@ -176,11 +161,7 @@ deployment.extensions/deploy-3 replaced
   kubectl bulk <resourceType> [<parameters>] delete <fields>
   
  ``` 
-  </p>
-</details> 
-<details>
-  <summary><b>Sample</b></summary>
-<p>
+ #### Sample
  
   ``` 
 $ kubectl bulk service -n test delete
@@ -192,27 +173,21 @@ deployment.extensions/deploy-1 replaced
 deployment.extensions/deploy-2 replaced
 
  ```
- </p>
 </details> 
+  <details>
+ <summary><b>bulk rollout</b></summary>
 
  ##   **`bulk rollout`**  
-`bulk .. rollout` is just give you an easy way to bulk rollout processes.   
 `bulk .. rollout` gives you all rollout features that history|pause|resume|status|undo    
 !!Reminder!! Rollout feature could be used only these resource types -> deployments|daemonsets|statefulsets
 
- <details>
- <summary><b>Usage</b></summary>
-<p>
+ #### Usage
  
  ``` 
   # do rollout for all resources that requested 
   kubectl bulk <resourceType> [<parameters>] rollout history|pause|resume|status|undo <rollout parameters>
  ``` 
-  </p>
-</details> 
-<details>
-  <summary><b>Sample</b></summary>
-<p>
+ #### Sample
  
   ``` 
 $ kubectl bulk deploy -n test rollout undo
@@ -230,9 +205,9 @@ REVISION  CHANGE-CAUSE
 2         <none>
 
  ```
- </p>
 </details> 
- 
+
+## `Kubectl Ixec Plugin`
 
 # Installation 
 
