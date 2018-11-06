@@ -1,6 +1,5 @@
 
 # kubectl-plugins
----
 ## `Kubectl Bulk Plugin`
 
 This plugin useful for Bulk operations.
@@ -14,7 +13,7 @@ You can easily do bulk operations on all resource types like deployments, servic
  - `bulk .. rollout` rollouts given processes.  
 
 
-<summary><h2>Features</h2></summary>
+### Features
 
 
  <details>
