@@ -1,6 +1,6 @@
 
 # kubectl-plugins
-## `Kubectl Bulk Plugin`
+## bulk plugin
 
 This plugin useful for Bulk operations.
 
@@ -206,7 +206,7 @@ REVISION  CHANGE-CAUSE
  ```
 </details> 
 
-## `Kubectl Ixec Plugin`
+## ixec plugin
 
 # Installation 
 
