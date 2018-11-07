@@ -210,6 +210,26 @@ REVISION  CHANGE-CAUSE
   kubectl interactive gives exec edit delete and logs ability with interactive selection.
   
 ## kubectl ixec
+kubectl plugin to simplify interactive exec command.
+
+Lists Kubernetes objects to choose from to create kubectl exec -ti command.
+
+![kubectl-iexec demo GIF](img/kubectl-ixec-demo.gif)
+
+## Usage
+
+```sh
+kubectl ixec
+```
+
+## Installation
+
+- [`Install fzf`](https://github.com/junegunn/fzf#installation)
+
+```sh
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+```
 
 # Installation 
 
