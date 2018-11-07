@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+main() {
+    local namespace
+	namespace="$(kubectl get ns -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | fzf)"
+	local pod
+	local getPod="kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{\"\n\"}}{{end}}' -n "$namespace" | fzf"
+	pod=$(eval "$getPod")
+	local getContainers="kubectl get pod "$pod" -o go-template --template '{{range .spec.containers}}{{.name}}{{\"\n\"}}{{end}}' -n "$namespace" | fzf"
+	local container
+	container=$(eval "$getContainers")
+
+	kubectl exec -ti "$pod" -c "$container" -n "$namespace" -- /bin/sh
+}
+
+main "$@"
