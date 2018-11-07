@@ -32,11 +32,6 @@ SELECTED="$( ${P1} | fzf -1 --ansi )"
 
 edit(){
 
-if [[ "$1" == " " ]];then
- NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
-else
- NS="$1"
-fi
 RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
 
 RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
@@ -45,20 +40,26 @@ eval "kubectl edit $RESOURCE_TYPE $RESOURCE1 -n $NS"
 }
 
 log(){
-echo "log"
+
+POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
+echo $POD;
+
+CONTAINER="$(kubectl get pod $POD -n $NS -o go-template --template '{{range .spec.containers}}{{.name}}{{"\n"}}{{end}}' | fzf -1 --ansi )"
+echo $CONTAINER;
+
+eval "kubectl logs $POD -n $NS -c $CONTAINER "
+
 }
 
 delete(){
-echo "delete"
+RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
+
+RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+echo $RESOURCE1
+eval "kubectl delete $RESOURCE_TYPE $RESOURCE1 -n $NS"
 }
 
 exec(){
-if [[ "$1" == " " ]];then
- NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
-else
- NS="$1"
-fi
-echo $NS;
 
 POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
 echo $POD;
@@ -91,14 +92,22 @@ read_parameters(){
                CMD="$( printf 'exec\nedit\nlog\ndelete' | fzf -1 --ansi)";
              fi
 
+    if [[ "$PARAMETER" == " " ]];then
+     NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
+    else
+     NS="$1"
+    fi
+
+echo "namespace: $NS";
+
                 if [[ $CMD  ==  "exec" ]];then
-                 exec $PARAMETER;
+                 exec
                 elif [[ $CMD == "edit" ]];then
-                 edit $PARAMETER;
+                 edit
                 elif [[ $CMD == "log" ]];then
-                 log $PARAMETER;
+                 log
                 elif [[ $CMD == "delete" ]];then
-                  delete $PARAMETER;
+                  delete
                 fi
 
 
