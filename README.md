@@ -243,5 +243,6 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 sudo git clone https://github.com/emreodabas/kubectl-plugins /opt/kubectl-plugins
 sudo ln -s /opt/kubectl-plugins/kubectl-bulk /usr/local/bin/kubectl-bulk
-
+sudo ln -s /opt/kubectl-plugins/kubectl-ixec /usr/local/bin/kubectl-ixec
+sudo ln -s /opt/kubectl-plugins/kubectl-it /usr/local/bin/kubectl-it
 ```
