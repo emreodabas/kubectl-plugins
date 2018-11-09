@@ -64,7 +64,7 @@ You can easily do bulk operations on all resource types like deployments, servic
   # list all resource definitions in to a file with json format  
   kubectl bulk <resourceType> [<parameters>] list filename json  
  ``` 
- ![kubectl-bulk list GIF](img/kubectl_bulk_list_.gif)
+ ![kubectl-bulk list GIF](img/kubectl_bulk_list.gif)
  
   #### Sample
   ```console 
@@ -103,7 +103,7 @@ All definitions will be written in file.json
   kubectl bulk <resourceType>[<parameters>] create parameterName newValue  
  ``` 
  
- ![kubectl-bulk create GIF](img/kubectl_bulk_get&create_.gif)
+ ![kubectl-bulk create GIF](img/kubectl_bulk_get&create.gif)
  #### Sample
  
   ```console 
@@ -132,7 +132,7 @@ $ kubectl bulk service create name service1 service2
 # get all definitions and update resources with definitions that parameterName fields removed and added with newValue
   kubectl bulk <resourceType>[<parameters>] update parameterName newValue  
  ``` 
- ![kubectl-bulk update GIF](img/kubectl_bulk_get&update_.gif)
+ ![kubectl-bulk update GIF](img/kubectl_bulk_get&update.gif)
  #### Sample
  
   ```console 
@@ -167,7 +167,7 @@ deployment.extensions/deploy-3 replaced
   kubectl bulk <resourceType> [<parameters>] delete <fields>
   
  ``` 
- ![kubectl-bulk delete GIF](img/kubectl_bulk_get&delete_.gif)
+ ![kubectl-bulk delete GIF](img/kubectl_bulk_get&delete.gif)
  #### Sample
  
   ```console 
@@ -234,9 +234,9 @@ $ kubectl it exec|edit|log|delete <namespace>
 
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
 
-![kubectl-it edit GIF](img/kubectl_it_edit_.gif)
+![kubectl-it edit GIF](img/kubectl_it_edit.gif)
    
-![kubectl-it delete GIF](img/kubectl_it_delete_.gif)
+![kubectl-it delete GIF](img/kubectl_it_delete.gif)
     
 ![kubectl-it log GIF](img/kubectl_it_log.gif)
         
