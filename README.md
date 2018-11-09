@@ -18,7 +18,7 @@ You can easily do bulk operations on all resource types like deployments, servic
  <details>
  <summary><b>bulk get</b></summary>
  
- `bulk .. get` is automatically get resources name, you don't need to add for all command 
+ `bulk .. get` automatically get resources name, you don't need to add for all command 
  !!Warning!! `bulk .. get` create a temporary file in path for performance.  
  
  #### Usage
@@ -51,7 +51,7 @@ You can easily do bulk operations on all resource types like deployments, servic
  
  ##   **`bulk list`**  
 
-`bulk .. list` is default mode for `Bulk plugin`
+`bulk .. list` default mode for `Bulk plugin`
 
 #### Usage
  
@@ -90,7 +90,7 @@ All definitions will be written in file.json
  <summary><b>bulk create</b></summary>
 
  ###   **`bulk create`**  
-`bulk .. create` is get your resource definitions and change metadata fields (name,namespaces) as you defined then create the new resources.
+`bulk .. create` get your resource definitions and change metadata fields (name,namespaces) as you defined then create the new resources.
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/created. Standard not created error will be throwed.
   
  #### Usage
@@ -120,7 +120,7 @@ $ kubectl bulk service create name service1 service2
  <summary><b>bulk update</b></summary>
 
  ##   **`bulk update`**  
-`bulk .. update` is get your resource definitions and change any fields as you defined then update resource definitions.
+`bulk .. update` get your resource definitions and change any fields as you defined then update resource definitions.
  !!Warning!! If that parameter not found (with/out value) than nothing will be changed/updated. Standard not updated error will be throwed.
 
  #### Usage
@@ -155,7 +155,7 @@ deployment.extensions/deploy-3 replaced
  <summary><b>bulk delete</b></summary>
 
  ##   **`bulk delete`**  
-`bulk .. delete` is easy way to bulk delete resources or fields.
+`bulk .. delete` easy way to bulk delete resources or fields.
 
  #### Usage
  
@@ -216,7 +216,7 @@ REVISION  CHANGE-CAUSE
 </details> 
 
 # kubectl it
- `kubectl it` is an interactive selection for exec,edit,delete or log.
+ `kubectl it` execute exec, edit, delete and log commands with interactive selection.
  
  `fzf` is required for this plugin.
 
@@ -267,7 +267,7 @@ kubectl ixec
 
 ## Linux
 
- `Kubectl-plugins` is a Bash script, it would be work in any POSIX environment that has Bash installed. 
+ `Kubectl-plugins` are Bash scripts, it would be work in any POSIX environment that has Bash installed. 
  sed|grep|awk are prerequisite commands for `kubectl bulk`  
 `fzf` is required for `kubectl it` and `kubectl ixec`
 
