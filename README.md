@@ -236,34 +236,14 @@ $ kubectl it exec|edit|log|delete <namespace>
  <summary><b>kubectl it (exec)</b></summary>
  
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
- 
- </details> 
- 
-   <details>
-  <summary><b>kubectl it (edit)</b></summary>
-  
+
 ![kubectl-it edit GIF](img/kubectl_it_edit_.gif)
-  
-  </details> 
-   
-   <details>
-   <summary><b>kubectl it (delete)</b></summary>
    
 ![kubectl-it delete GIF](img/kubectl_it_delete_.gif)
-   
-   </details> 
-     
-   <details>
-    <summary><b>kubectl it (log)</b></summary>
     
- ![kubectl-it log GIF](img/kubectl_it_log.gif)
-    
-   </details> 
-    
-   <details>
-        <summary><b>kubectl it </b></summary>
+![kubectl-it log GIF](img/kubectl_it_log.gif)
         
- ![kubectl-it exclusive GIF](img/kubectl_it_exclusive.gif)
+![kubectl-it exclusive GIF](img/kubectl_it_exclusive.gif)
         
    </details> 
 
