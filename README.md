@@ -30,8 +30,8 @@ You can easily do bulk operations on all resource types like deployments, servic
   ``` 
  #### Sample
 
-``` 
- $ kubectl bulk hpa get minReplicas maxReplicas  
+```console 
+ $ kubectl bulk hpa -n myspace get minReplicas maxReplicas  
   minReplicas maxReplicas fields are getting
     name: podinfo
     maxReplicas: 10
@@ -63,7 +63,7 @@ You can easily do bulk operations on all resource types like deployments, servic
   kubectl bulk <resourceType> [<parameters>] list filename json  
  ``` 
   #### Sample
-  ``` 
+  ```console 
 $ kubectl bulk deploy -n test 
 apiVersion: v1
 items:
@@ -100,7 +100,7 @@ All definitions will be written in file.json
  ``` 
  #### Sample
  
-  ``` 
+  ```console 
 $ kubectl bulk deploy -n test create namespace test staging 
 creating new resource with changing namespace: test to namespace: staging for all  deploy
 deployment.extensions/sample-app created
@@ -128,7 +128,7 @@ $ kubectl bulk service create name service1 service2
  ``` 
  #### Sample
  
-  ``` 
+  ```console 
 # Update all deploys image value in test namespace which image version was v1   
 $ kubectl bulk deploy -n test update image v1 v2 
 updating resource with changing image: v1 to image: v2 for all  deploy -n test
@@ -162,7 +162,7 @@ deployment.extensions/deploy-3 replaced
  ``` 
  #### Sample
  
-  ``` 
+  ```console 
 $ kubectl bulk service -n test delete
  service/svc-1 deleted
  service/svc-2 deleted
@@ -188,7 +188,7 @@ deployment.extensions/deploy-2 replaced
  ``` 
  #### Sample
  
-  ``` 
+  ```console 
 $ kubectl bulk deploy -n test rollout undo
  'deploy's are being rollout undo
  deployment.extensions/deploy-1
@@ -207,12 +207,27 @@ REVISION  CHANGE-CAUSE
 </details> 
 
 ## kubectl it
-  kubectl interactive gives exec edit delete and logs ability with interactive selection.
-  
+ `kubectl it` is an interactive selection for exec,edit,delete or log.
+ 
+ `fzf` is required for this plugin.
+
+## Usage
+
+```console
+$ kubectl it
+..
+$ kubectl it exec|edit|log|delete
+..
+$ kubectl it exec|edit|log|delete <namespace>
+```
+
+
 ## kubectl ixec
 kubectl plugin to simplify interactive exec command.
 
 Lists Kubernetes objects to choose from to create kubectl exec -ti command.
+
+`fzf` is required for this plugin. 
 
 ![kubectl-iexec demo GIF](img/kubectl-ixec-demo.gif)
 
@@ -222,22 +237,14 @@ Lists Kubernetes objects to choose from to create kubectl exec -ti command.
 kubectl ixec
 ```
 
-## Installation
-
-- [`Install fzf`](https://github.com/junegunn/fzf#installation)
-
-```sh
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-```
-
 # Installation 
 
 
 ## Linux
 
- `Bulk plugin` is a Bash script, it would be work in any POSIX environment that has Bash installed. 
- sed|grep|awk are prerequisite commands for `Bulk plugin`
+ `Kubectl-plugins` is a Bash script, it would be work in any POSIX environment that has Bash installed. 
+ sed|grep|awk are prerequisite commands for `kubectl bulk`  
+`fzf` is required for `kubectl it` and `kubectl ixec`
 
 ``` bash
 
@@ -246,3 +253,14 @@ sudo ln -s /opt/kubectl-plugins/kubectl-bulk /usr/local/bin/kubectl-bulk
 sudo ln -s /opt/kubectl-plugins/kubectl-ixec /usr/local/bin/kubectl-ixec
 sudo ln -s /opt/kubectl-plugins/kubectl-it /usr/local/bin/kubectl-it
 ```
+
+### fzf Installation
+
+- [`Install fzf`](https://github.com/junegunn/fzf#installation)
+
+```sh
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+```
+
+
