@@ -1,6 +1,5 @@
 
-# Kubectl Plugins
-## kubectl bulk
+# kubectl bulk
 
 This plugin useful for Bulk operations.
 
@@ -216,7 +215,7 @@ REVISION  CHANGE-CAUSE
  ```
 </details> 
 
-## kubectl it
+# kubectl it
  `kubectl it` is an interactive selection for exec,edit,delete or log.
  
  `fzf` is required for this plugin.
@@ -244,7 +243,8 @@ $ kubectl it exec|edit|log|delete <namespace>
         
    </details> 
 
-## [kubectl ixec](https://github.com/duyguserbest/kubectl-iexec)
+#  [kubectl ixec](https://github.com/duyguserbest/kubectl-iexec)
+
 kubectl plugin to simplify interactive exec command.
 
 Lists Kubernetes objects to choose from to create kubectl exec -ti command.
