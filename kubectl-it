@@ -80,7 +80,6 @@ read_parameters(){
     elif [[ "$#" -gt 1 ]]; then
         while [ $COUNTER -le "$#" ]; do
                case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"delete"|"logs")
-                    echo "CMD setted"
                     CMD=${@:$COUNTER:1} ;;
             *)
                     PARAMETER="${@:$COUNTER:1}"
@@ -95,7 +94,7 @@ read_parameters(){
     if [[ "$PARAMETER" == " " ]];then
      NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
     else
-     NS="$1"
+     NS="$PARAMETER"
     fi
 
 echo "namespace: $NS";
@@ -108,6 +107,8 @@ echo "namespace: $NS";
                  log
                 elif [[ $CMD == "delete" ]];then
                   delete
+                elif [[ $CMD == "help" || $CMD == "-help" || $CMD == "-h" ]];then
+                  usage
                 fi
 
 

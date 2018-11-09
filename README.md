@@ -28,6 +28,8 @@ You can easily do bulk operations on all resource types like deployments, servic
    # get fields' values for given resource type
    kubectl bulk <resourceType> [<parameters>] get [<fields>]
   ``` 
+  ![kubectl-bulk get GIF](img/kubectl_bulk_get.gif)
+  
  #### Sample
 
 ```console 
