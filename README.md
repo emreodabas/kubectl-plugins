@@ -221,8 +221,9 @@ REVISION  CHANGE-CAUSE
  
  `fzf` is required for this plugin.
 
-## Usage
-
+  <details>
+ <summary><b>Usage </b></summary>
+ 
 ```console
 $ kubectl it
 ..
@@ -231,10 +232,6 @@ $ kubectl it exec|edit|log|delete
 $ kubectl it exec|edit|log|delete <namespace>
 ```
 
-
-  <details>
- <summary><b>kubectl it (exec)</b></summary>
- 
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
 
 ![kubectl-it edit GIF](img/kubectl_it_edit_.gif)
@@ -247,20 +244,23 @@ $ kubectl it exec|edit|log|delete <namespace>
         
    </details> 
 
-## kubectl ixec
+## [kubectl ixec](https://github.com/duyguserbest/kubectl-iexec)
 kubectl plugin to simplify interactive exec command.
 
 Lists Kubernetes objects to choose from to create kubectl exec -ti command.
 
+
 `fzf` is required for this plugin. 
 
-![kubectl-iexec demo GIF](img/kubectl-ixec-demo.gif)
+  <details>
+ <summary><b>Usage </b></summary>
 
-## Usage
+![kubectl-iexec demo GIF](img/kubectl-ixec-demo.gif)
 
 ```sh
 kubectl ixec
 ```
+</details> 
 
 # Installation 
 
