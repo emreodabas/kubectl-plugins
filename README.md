@@ -64,6 +64,8 @@ You can easily do bulk operations on all resource types like deployments, servic
   # list all resource definitions in to a file with json format  
   kubectl bulk <resourceType> [<parameters>] list filename json  
  ``` 
+ ![kubectl-bulk list GIF](img/kubectl_bulk_list_.gif)
+ 
   #### Sample
   ```console 
 $ kubectl bulk deploy -n test 
@@ -100,6 +102,8 @@ All definitions will be written in file.json
 # get all definitions and create resources with definitions that parameterName fields removed and added with newValue
   kubectl bulk <resourceType>[<parameters>] create parameterName newValue  
  ``` 
+ 
+ ![kubectl-bulk create GIF](img/kubectl_bulk_get&create_.gif)
  #### Sample
  
   ```console 
@@ -128,6 +132,7 @@ $ kubectl bulk service create name service1 service2
 # get all definitions and update resources with definitions that parameterName fields removed and added with newValue
   kubectl bulk <resourceType>[<parameters>] update parameterName newValue  
  ``` 
+ ![kubectl-bulk update GIF](img/kubectl_bulk_get&update_.gif)
  #### Sample
  
   ```console 
@@ -162,6 +167,7 @@ deployment.extensions/deploy-3 replaced
   kubectl bulk <resourceType> [<parameters>] delete <fields>
   
  ``` 
+ ![kubectl-bulk delete GIF](img/kubectl_bulk_get&delete_.gif)
  #### Sample
  
   ```console 
@@ -188,6 +194,8 @@ deployment.extensions/deploy-2 replaced
   # do rollout for all resources that requested 
   kubectl bulk <resourceType> [<parameters>] rollout history|pause|resume|status|undo <rollout parameters>
  ``` 
+ 
+ ![kubectl-bulk rollout GIF](img/kubectl_bulk_rollout.gif)
  #### Sample
  
   ```console 
@@ -223,6 +231,41 @@ $ kubectl it exec|edit|log|delete
 $ kubectl it exec|edit|log|delete <namespace>
 ```
 
+
+  <details>
+ <summary><b>kubectl it (exec)</b></summary>
+ 
+![kubectl-it exec GIF](img/kubectl_it_exec.gif)
+ 
+ </details> 
+ 
+   <details>
+  <summary><b>kubectl it (edit)</b></summary>
+  
+![kubectl-it edit GIF](img/kubectl_it_edit_.gif)
+  
+  </details> 
+   
+   <details>
+   <summary><b>kubectl it (delete)</b></summary>
+   
+![kubectl-it delete GIF](img/kubectl_it_delete_.gif)
+   
+   </details> 
+     
+   <details>
+    <summary><b>kubectl it (log)</b></summary>
+    
+ ![kubectl-it log GIF](img/kubectl_it_log.gif)
+    
+   </details> 
+    
+   <details>
+        <summary><b>kubectl it </b></summary>
+        
+ ![kubectl-it exclusive GIF](img/kubectl_it_exclusive.gif)
+        
+   </details> 
 
 ## kubectl ixec
 kubectl plugin to simplify interactive exec command.
