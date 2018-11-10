@@ -10,6 +10,7 @@ You can easily do bulk operations on all resource types like deployments, servic
  kubectl bulk deploy -n test get image   
 
 `Bulk plugin` has 5 main abilities for now :-)
+
  - `bulk .. get` gets selected fields's values for given resource types. 
  - `bulk .. list` lists all resource definitions in yaml or json.
  - `bulk .. create` creates new resource from your exist resources.
@@ -275,6 +276,7 @@ kubectl ixec
  `Kubectl-plugins` are Bash scripts, it would be work in any POSIX environment that has Bash installed. 
  sed|grep|awk are prerequisite commands for `kubectl bulk`  
 `fzf` is required for `kubectl it` and `kubectl ixec`
+ !!WARNING!!  Kubectl has plugin feature with version 12. Don't forget to update your kubectl installation :)
 
 ``` bash
 
