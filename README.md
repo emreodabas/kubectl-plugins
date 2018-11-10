@@ -5,8 +5,10 @@ This plugin useful for Bulk operations.
 
 You can easily do bulk operations on all resource types like deployments, services, pods etc.  
 `Bulk plugin` has two part, first you select resources with bulk command, then chose your command (get,delete .. etc.) with parameters.  
- kubectl \<resourceType with default k8s paramaters\> (get|list|create|update|rollout) \<command parameters\>  
- ex. kubectl bulk deploy -n test get image   
+ 
+ `kubectl bulk \<resourceType with default k8s paramaters\> (get|list|create|update|rollout) \<command parameters\>`  
+ kubectl bulk deploy -n test get image   
+
 `Bulk plugin` has 5 main abilities for now :-)
  - `bulk .. get` gets selected fields's values for given resource types. 
  - `bulk .. list` lists all resource definitions in yaml or json.
