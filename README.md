@@ -1,4 +1,4 @@
-<meta name='keywords' content='kubectl, kubectl plugins, kubectl-plugins, kubectl bulk, kubectl interactive, kubectl exec'>
+<meta name='keywords' content='kubectl, kubectl plugins, kubectl-plugins, kubectl bulk, kubectl interactive, kubectl exec, kubernetes bulk, kubernetes interactive, kubectl delete all, kubernetes delete all, kubectl edit all, kubernetes edit all '>
 # kubectl bulk
 
 This plugin useful for Bulk operations.
