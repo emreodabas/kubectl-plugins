@@ -162,6 +162,25 @@ CMD_DETAIL="";
  esac
 }
 
+deletexp() {
+CMD_DETAIL="";
+ if [[ "$ACTION_P2" != "" ]];then
+     CMD_DETAIL="$ACTION_P2";
+ elif [[ "$ACTION_P1" != "" ]];then
+     CMD_DETAIL=""$ACTION_P1": ${CMD_DETAIL}";
+ fi
+
+ case "$CMD_DETAIL"  in ": " | "")
+    echo "'$RESOURCE_TYPE's will be deleting.";
+    eval "kubectl bulk ${GET_CMD} list deletelist ";
+    eval "kubectl delete -f deletelist.yaml"
+    eval rm deletelist.yaml;;
+  *)
+    echo "'$RESOURCE_TYPE's $CMD_DETAIL will be removing.";
+    eval "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
+ esac
+}
+
 action_call() {
 
  if [[ $CMD  ==  "create" ]];then
@@ -176,6 +195,8 @@ action_call() {
       list;
     elif [[ $CMD == "delete" ]];then
       delete;
+    elif [[ $CMD == "deletex" ]];then
+      deletexp;
     elif [[ $CMD == "rollout" ]];then
       rollout;
     fi
@@ -192,7 +213,7 @@ fi
  IS_GET=true
  RESOURCE_TYPE="$1"
          while [ $COUNTER -le "$#" ]; do
-            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"updatex"|"update"|"delete"|"rollout")
+            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"updatex"|"update"|"delete"|"deletex"|"rollout")
                   CMD=${@:$COUNTER:1};
                   CMD_INDEX=$COUNTER;
                  IS_GET=false;
