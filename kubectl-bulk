@@ -116,16 +116,11 @@ create() {
 }
 
 updatexp(){
-if [[ $ACTION_P3 == "" ]];then
-    echo "updating (experimental) resource with removing $ACTION_P1: line  and added $ACTION_P1: $ACTION_P2 for all $GET_CMD";
-    loginfo "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1: $ACTION_P2/$ACTION_P1: $ACTION_P3/' | kubectl replace -f - ";
-    eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | kubectl replace -f - ";
-  else
-    echo "updating (experimental)resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
-    ACTION_P2=$(eval "kubectl get ${GET_CMD} -o jsonpath='{..image}' | sed 's/gcr.io\/cloudsql-docker\/gce-proxy:1.11//g' | xargs -n1 | sort -u");
-    echo $ACTION_P2
-    eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - ";
-  fi
+
+    
+    ACTION_P3=$(eval "kubectl get ${GET_CMD} -o jsonpath='{..image}' | sed 's/gcr.io\/cloudsql-docker\/gce-proxy:1.11//g' | xargs -n1 | sort -u");
+    echo "updating (experimental)resource with changing $ACTION_P1: $ACTION_P3 to $ACTION_P1: $ACTION_P2 for all $GET_CMD";
+    eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P3|$ACTION_P1: $ACTION_P2|' | kubectl replace -f - ";
 }
 
 update() {
