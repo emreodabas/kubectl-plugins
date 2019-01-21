@@ -116,11 +116,15 @@ create() {
 }
 
 updatexp(){
-
-    
+if [[ $ACTION_P3 == "" ]];then
+   ACTION_P2=$(eval "kubectl get ${GET_CMD} -o jsonpath='{..image}' | xargs -n1 | sort -u" | grep $ACTION_P2 );
+   echo "updating (experimental)resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
+   eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - "; 
+ else    
     ACTION_P3=$(eval "kubectl get ${GET_CMD} -o jsonpath='{..image}' | sed 's/gcr.io\/cloudsql-docker\/gce-proxy:1.11//g' | xargs -n1 | sort -u");
     echo "updating (experimental)resource with changing $ACTION_P1: $ACTION_P3 to $ACTION_P1: $ACTION_P2 for all $GET_CMD";
     eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P3|$ACTION_P1: $ACTION_P2|' | kubectl replace -f - ";
+fi 
 }
 
 update() {
