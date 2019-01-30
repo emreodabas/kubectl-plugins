@@ -17,6 +17,9 @@ GET_CMD="";
 CH_CMD="";
 RESOURCE_TYPE="";
 CMD_INDEX=0;
+GREP_CMD="";
+GREP_NAMES="";
+
 
 usage() {
 
@@ -26,7 +29,7 @@ fi
  cat <<"EOF"
 
 USAGE:
-    kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout  [<parameters>]
+    kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout|remove  [<parameters>]
 EOF
 
 }
@@ -35,8 +38,12 @@ get() {
 
 echo "$CH_CMD fields are getting";
 NAMES=( $(eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}" | sed "s/ /\n/g"));
+if [[ ${#NAMES[@]} == 0 ]]; then
+  NAMES=( $(eval "kubectl get ${GET_CMD} -o jsonpath={.metadata.name}" | sed "s/ /\n/g"));
+fi
 INDEX=0
 COUNT=${#NAMES[@]}
+
 NAME_DETAIL=""
 while [ "$INDEX" -lt "$COUNT" ]; do
 NAME_DETAIL+=" | sed '0,/- apiVersion:/s//--> $RESOURCE_TYPE\/${NAMES[$INDEX]}\n/'"
@@ -120,8 +127,10 @@ update() {
     echo "updating resource with $ACTION_P1: $ACTION_P2 for all $GET_CMD";
     eval "kubectl get ${GET_CMD} -o yaml | sed 's/$ACTION_P1:/BULKPLUGINTEMPVAR\n $ACTION_P1:/' | sed '/$ACTION_P1:/d' | sed 's|BULKPLUGINTEMPVAR|$ACTION_P1: \"$ACTION_P2\"|' | kubectl replace -f - ";
   else
-    echo "updating resource with changing $ACTION_P1: $ACTION_P2 to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
-    eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: \"$ACTION_P3\"|' | kubectl replace -f - ";
+
+     ACTION_P2=$(eval "kubectl get ${GET_CMD} -o jsonpath='{..image}' | xargs -n1 | sort -u" | grep $ACTION_P2 );
+     echo "updating resource with changing $ACTION_P1: %$ACTION_P2% to $ACTION_P1: $ACTION_P3 for all $GET_CMD";
+     eval "kubectl get ${GET_CMD} -o yaml | sed 's|$ACTION_P1: $ACTION_P2|$ACTION_P1: $ACTION_P3|' | kubectl replace -f - ";
   fi
 
 }
@@ -133,7 +142,7 @@ eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubect
 
 }
 
-delete() {
+remove() {
 CMD_DETAIL="";
  if [[ "$ACTION_P2" != "" ]];then
      CMD_DETAIL="$ACTION_P2";
@@ -142,11 +151,32 @@ CMD_DETAIL="";
  fi
  case "$CMD_DETAIL"  in ": " | "")
     echo "'$RESOURCE_TYPE's will be deleting.";
-    eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl delete ${GET_CMD} ";;
+    eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl remove ${GET_CMD} ";;
   *)
     echo "'$RESOURCE_TYPE's $CMD_DETAIL will be removing.";
     eval "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
  esac
+}
+
+delete() {
+DELETE_PARAMS="";
+
+if [[ "$ACTION_P3" != "" ]];then
+       DELETE_PARAMS="$ACTION_P1" "$ACTION_P2" "$ACTION_P3";
+elif [[ "$ACTION_P2" != "" ]];then
+          DELETE_PARAMS="$ACTION_P1" "$ACTION_P2";
+elif [[ "$ACTION_P1" != "" ]];then
+          DELETE_PARAMS="$ACTION_P1";
+fi
+
+    eval "kubectl bulk ${GET_CMD} list deletelist ";
+if [[ "$DELETE_PARAMS" != "" ]];then
+    echo "'$RESOURCE_TYPE's will be deleting with $DELETE_PARAMS ";
+else
+   echo "'$RESOURCE_TYPE's will be deleting .";
+fi
+    eval "kubectl delete $DELETE_PARAMS -f deletelist.yaml";
+    eval rm deletelist.yaml;
 }
 
 action_call() {
@@ -159,10 +189,12 @@ action_call() {
       get "$@";
     elif [[ $CMD == "list" ]];then
       list;
-    elif [[ $CMD == "delete" ]];then
-      delete;
+    elif [[ $CMD == "remove" ]];then
+      remove;
     elif [[ $CMD == "rollout" ]];then
       rollout;
+    elif [[ $CMD == "delete" ]];then
+      delete;
     fi
 }
 
@@ -177,20 +209,37 @@ fi
  IS_GET=true
  RESOURCE_TYPE="$1"
          while [ $COUNTER -le "$#" ]; do
-            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"update"|"delete"|"rollout")
+            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"update"|"remove"|"rollout"|"delete")
                   CMD=${@:$COUNTER:1};
                   CMD_INDEX=$COUNTER;
                  IS_GET=false;
                  let COUNTER=COUNTER+1;
             esac
              if [ $IS_GET == true ];then
-                GET_CMD="$GET_CMD ${@:$COUNTER:1}"
-              elif [ $IS_GET == false ];then
+              case "${@:$COUNTER:1}" in *%* )
+                 if [[ $GREP_CMD != "" ]];then
+                    echo "you could only use one % wild card";
+                     exit 0
+                 else
+                   GREP_CMD="${@:$COUNTER:1}";
+                 fi
+               ;;
+
+                *)
+               GET_CMD="$GET_CMD ${@:$COUNTER:1}"
+                		;;
+                		esac
+             elif [ $IS_GET == false ];then
                 CH_CMD="$CH_CMD ${@:$COUNTER:1}"
              fi
                     let COUNTER=COUNTER+1
              done
-   if [[ $CMD == "" ]];then
+
+ if [[ $GREP_CMD != "" ]];then
+   GREP_NAMES=( $(eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}" | sed "s/ /\n/g" | grep ${GREP_CMD//%} | sed ":a;/$/{N;s/\n/ /;ba}"));
+    GET_CMD="${GET_CMD} ${GREP_NAMES}";
+ fi
+       if [[ $CMD == "" ]];then
       list;
    fi
        ACTION_P1=${@:$((CMD_INDEX+1)):1};
