@@ -145,13 +145,13 @@ eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubect
 remove() {
 CMD_DETAIL="";
  if [[ "$ACTION_P2" != "" ]];then
-     CMD_DETAIL="$ACTION_P2";
+     CMD_DETAIL="${ACTION_P1}: ${ACTION_P2}";
  elif [[ "$ACTION_P1" != "" ]];then
-     CMD_DETAIL=""$ACTION_P1": ${CMD_DETAIL}";
+     CMD_DETAIL="$ACTION_P1";
  fi
  case "$CMD_DETAIL"  in ": " | "")
     echo "'$RESOURCE_TYPE's will be deleting.";
-    eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl remove ${GET_CMD} ";;
+    eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl delete ${GET_CMD} ";;
   *)
     echo "'$RESOURCE_TYPE's $CMD_DETAIL will be removing.";
     eval "kubectl get ${GET_CMD} -o yaml | sed '/$CMD_DETAIL/d' | kubectl replace -f - ";
