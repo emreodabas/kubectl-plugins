@@ -28,7 +28,7 @@ kubectl bulk deploy my-deploy% -n test update mylabel newValue
  - `bulk .. rollout` rollouts given processes.  
 
 
-### Features
+### Details
 
 
  <details>
