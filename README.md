@@ -7,11 +7,14 @@ You can easily do bulk operations on all resource types like deployments, servic
 `Bulk plugin` has two part, first you select resources with bulk command, then chose your command (get,delete .. etc.) with parameters. 
  
  `kubectl bulk <get resourceTypes> (get|list|create|update|rollout) <command parameters>`  
+ ```
  kubectl bulk deploy -n test get image   
+ ```
+<b> Now you can use % wild card in get resource types </b>
 
-Now you can use % wild card in get resource types
-
-`kubectl bulk deploy my-deploy% -n test update mylabel newValue`
+```
+kubectl bulk deploy my-deploy% -n test update mylabel newValue
+```
 
 `Bulk plugin` has 5 main abilities for now :-)
 
