@@ -195,7 +195,7 @@ deployment.extensions/deploy-2 deleted
  <summary><b>bulk remove</b></summary>
 
  ##   **`bulk remove`**  
-`bulk .. delete` easy way to bulk remove resource/fields.
+`bulk .. remove` easy way to bulk remove resource/fields.
 
  #### Usage
  
