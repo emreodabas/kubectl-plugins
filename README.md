@@ -10,6 +10,7 @@ You can easily do bulk operations on all resource types like deployments, servic
  kubectl bulk deploy -n test get image   
 
 Now you can use % wild card in get resource types
+
 `kubectl bulk deploy my-deploy% -n test update mylabel newValue`
 
 `Bulk plugin` has 5 main abilities for now :-)
