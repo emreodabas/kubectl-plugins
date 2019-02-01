@@ -4,17 +4,22 @@
 This plugin useful for Bulk operations.
 
 You can easily do bulk operations on all resource types like deployments, services, pods etc.  
-`Bulk plugin` has two part, first you select resources with bulk command, then chose your command (get,delete .. etc.) with parameters.  
+`Bulk plugin` has two part, first you select resources with bulk command, then chose your command (get,delete .. etc.) with parameters. 
  
  `kubectl bulk <get resourceTypes> (get|list|create|update|rollout) <command parameters>`  
  kubectl bulk deploy -n test get image   
+
+Now you can use % wild card in get resource types
+kubectl bulk deploy my-deploy% -n test update mylabel newValue 
 
 `Bulk plugin` has 5 main abilities for now :-)
 
  - `bulk .. get` gets selected fields's values for given resource types. 
  - `bulk .. list` lists all resource definitions in yaml or json.
  - `bulk .. create` creates new resource from your exist resources.
- - `bulk .. update` updates bulk resource definitions.
+ - `bulk .. update` updates bulk resource definitions fields.
+ - `bulk .. delete` delete bulk resources with delete parameters.
+ - `bulk .. remove` remove bulk resource definitions fields.
  - `bulk .. rollout` rollouts given processes.  
 
 
@@ -169,7 +174,7 @@ deployment.extensions/deploy-3 replaced
   # delete resources that in requested resource types 
   kubectl bulk <resourceType> [<parameters>] delete
   # delete fields of resources that in requested resource types  
-  kubectl bulk <resourceType> [<parameters>] delete <fields>
+  kubectl bulk <resourceType> [<parameters>] delete <delete parameters>
   
  ``` 
  ![kubectl-bulk delete GIF](img/kubectl_bulk_get&delete.gif)
@@ -180,7 +185,35 @@ $ kubectl bulk service -n test delete
  service/svc-1 deleted
  service/svc-2 deleted
  ...
-$ kubectl bulk deploy delete label1
+$ kubectl bulk deploy delete --grace-period=1
+deployment.extensions/deploy-1 deleted
+deployment.extensions/deploy-2 deleted
+
+ ```
+</details> 
+  <details>
+ <summary><b>bulk remove</b></summary>
+
+ ##   **`bulk remove`**  
+`bulk .. delete` easy way to bulk remove resource/fields.
+
+ #### Usage
+ 
+ ``` 
+  # delete resources that in requested resource types 
+  kubectl bulk <resourceType> [<parameters>] remove
+  # delete fields of resources that in requested resource types  
+  kubectl bulk <resourceType> [<parameters>] remove <field> <value>
+  
+ ``` 
+ #### Sample
+ 
+  ```console 
+$ kubectl bulk service -n test remove
+ service/svc-1 deleted
+ service/svc-2 deleted
+ ...
+$ kubectl bulk deploy remove label1
 deployment.extensions/deploy-1 replaced
 deployment.extensions/deploy-2 replaced
 
