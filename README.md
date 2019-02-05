@@ -259,7 +259,7 @@ REVISION  CHANGE-CAUSE
  ```
 </details> 
 
-# kubectl interactive (in krew repo) same as kubectl it
+# kubectl it
  `kubectl interactive` execute exec, edit, delete and log commands with interactive selection.
  
  `fzf` is required for this plugin.
