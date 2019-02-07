@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+[[ -n $DEBUG ]] && set -x
+
+set -eou pipefail
+IFS=$'\n\t'
+
+SELF_CMD="$0"
+
+DEBUG=true
+
+
+usage() {
+
+if [ -n "$1" ] ; then
+    echo $1;
+fi
+ cat <<"EOF"
+
+USAGE:
+    kubectl util ...... TODO
+EOF
+
+}
+
+
+
+main() {
+
+    
+
+}
+
+main "$@"
