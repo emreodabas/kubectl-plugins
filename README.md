@@ -311,7 +311,7 @@ kubectl ixec
 ## Install with krew
 Install krew plugin manager for kubectl.
 ```bash
-kubectl krew install bulk-action.
+kubectl krew install bulk-action
 ```
 ## Linux
 
