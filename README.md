@@ -308,7 +308,11 @@ kubectl ixec
 
 # Installation 
 
-
+## Install with krew
+Install krew plugin manager for kubectl.
+```bash
+kubectl krew install bulk-action.
+```
 ## Linux
 
  `Kubectl-plugins` are Bash scripts, it would be work in any POSIX environment that has Bash installed. 
