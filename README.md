@@ -262,6 +262,8 @@ REVISION  CHANGE-CAUSE
 # kubectl it
  `kubectl interactive` execute exec, edit, delete and log commands with interactive selection.
  
+ * Port-forward ability added 
+ 
  `fzf` is required for this plugin.
 
   <details>
@@ -270,9 +272,9 @@ REVISION  CHANGE-CAUSE
 ```console
 $ kubectl interactive
 ..
-$ kubectl interactive exec|edit|log|delete
+$ kubectl interactive exec|edit|log|delete|port-forward
 ..
-$ kubectl interactive exec|edit|log|delete <namespace>
+$ kubectl interactive exec|edit|log|delete|port-forward <namespace>
 ```
 
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
