@@ -259,8 +259,8 @@ REVISION  CHANGE-CAUSE
  ```
 </details> 
 
-# kubectl it
- `kubectl interactive` execute exec, edit, delete and log commands with interactive selection.
+# kubectl it ~~ interactive 
+ `kubectl it` execute exec, edit, delete and log commands with interactive selection.
  
  * Port-forward ability added 
  
@@ -270,11 +270,11 @@ REVISION  CHANGE-CAUSE
  <summary><b>Usage </b></summary>
  
 ```console
-$ kubectl interactive
+$ kubectl it
 ..
-$ kubectl interactive exec|edit|log|log-follow|delete|port-forward
+$ kubectl it exec|edit|log|log-follow|delete|port-forward
 ..
-$ kubectl interactive exec|edit|log|log-follow|delete|port-forward <namespace>
+$ kubectl it exec|edit|log|log-follow|delete|port-forward <namespace>
 ```
 
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
