@@ -1,6 +1,6 @@
 <meta name='keywords' content='kubectl, kubectl plugins, kubectl-plugins, kubectl bulk, kubectl interactive, kubectl exec, kubernetes bulk, kubernetes interactive, kubectl delete all, kubernetes delete all, kubectl edit all, kubernetes edit all '>
 
-# kubectl bulk
+# kubectl bulk (aka bulk-action)
 
 This plugin useful for Bulk operations.
 
@@ -262,6 +262,8 @@ REVISION  CHANGE-CAUSE
 # kubectl it
  `kubectl interactive` execute exec, edit, delete and log commands with interactive selection.
  
+ * Port-forward ability added 
+ 
  `fzf` is required for this plugin.
 
   <details>
@@ -270,9 +272,9 @@ REVISION  CHANGE-CAUSE
 ```console
 $ kubectl interactive
 ..
-$ kubectl interactive exec|edit|log|delete
+$ kubectl interactive exec|edit|log|delete|port-forward
 ..
-$ kubectl interactive exec|edit|log|delete <namespace>
+$ kubectl interactive exec|edit|log|delete|port-forward <namespace>
 ```
 
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
@@ -308,7 +310,11 @@ kubectl ixec
 
 # Installation 
 
-
+## Install with krew
+Install krew plugin manager for kubectl.
+```bash
+kubectl krew install bulk-action
+```
 ## Linux
 
  `Kubectl-plugins` are Bash scripts, it would be work in any POSIX environment that has Bash installed. 

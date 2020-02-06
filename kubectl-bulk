@@ -30,6 +30,7 @@ fi
 
 USAGE:
     kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout|remove  [<parameters>]
+    ex. kubectl bulk hpa -n myspace get minReplicas maxReplicas
 EOF
 
 }

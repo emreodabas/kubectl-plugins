@@ -10,6 +10,8 @@ CMD=""
 NS=""
 POD=""
 SELECTED=""
+INPUT=""
+
 
 usage() {
 
@@ -19,7 +21,7 @@ fi
  cat <<"EOF"
 
 USAGE:
-    kubectl it exec|edit|delete|log <namespace>
+    kubectl it exec|edit|delete|log|port-forward <namespace>
 EOF
 
 }
@@ -70,6 +72,36 @@ echo $CONTAINER;
 eval "kubectl exec -ti $POD -n $NS -c $CONTAINER -- /bin/sh"
 }
 
+portForward(){
+
+
+POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
+echo $POD;
+
+get_interactive_parameter  " Pod Port ?"
+POD_PORT=$INPUT
+get_interactive_parameter " Your Port ?"
+YOUR_PORT=$INPUT
+
+eval "kubectl port-forward  $POD -n $NS  $YOUR_PORT:$POD_PORT "
+
+
+}
+
+
+
+get_interactive_parameter(){
+
+    response=
+
+    echo -n "$1 > "
+    read response
+    if [ -n "$response" ]; then
+        INPUT=$response
+    fi
+
+}
+
 read_parameters(){
 
  COUNTER=1
@@ -79,7 +111,7 @@ read_parameters(){
     CMD=$1;
     elif [[ "$#" -gt 1 ]]; then
         while [ $COUNTER -le "$#" ]; do
-               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"delete"|"logs")
+               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"delete"|"logs|port-forward")
                     CMD=${@:$COUNTER:1} ;;
             *)
                     PARAMETER="${@:$COUNTER:1}"
@@ -88,7 +120,7 @@ read_parameters(){
          done
  fi
              if [[ $CMD == "" ]];then
-               CMD="$( printf 'exec\nedit\nlog\ndelete' | fzf -1 --ansi)";
+               CMD="$( printf 'exec\nedit\nlog\ndelete\nport-forward' | fzf -1 --ansi)";
              fi
 
     if [[ "$PARAMETER" == " " ]];then
@@ -107,6 +139,8 @@ echo "namespace: $NS";
                  log
                 elif [[ $CMD == "delete" ]];then
                   delete
+                elif [[ $CMD == "port-forward" ]];then
+                  portForward
                 elif [[ $CMD == "help" || $CMD == "-help" || $CMD == "-h" ]];then
                   usage
                 fi
