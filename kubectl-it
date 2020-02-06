@@ -53,6 +53,18 @@ eval "kubectl logs $POD -n $NS -c $CONTAINER "
 
 }
 
+logFollow(){
+
+POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
+echo $POD;
+
+CONTAINER="$(kubectl get pod $POD -n $NS -o go-template --template '{{range .spec.containers}}{{.name}}{{"\n"}}{{end}}' | fzf -1 --ansi )"
+echo $CONTAINER;
+
+eval "kubectl logs $POD -n $NS -c $CONTAINER -f "
+
+}
+
 delete(){
 RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
 
@@ -111,7 +123,7 @@ read_parameters(){
     CMD=$1;
     elif [[ "$#" -gt 1 ]]; then
         while [ $COUNTER -le "$#" ]; do
-               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"delete"|"logs|port-forward")
+               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"log-follow"|"delete"|"logs|port-forward")
                     CMD=${@:$COUNTER:1} ;;
             *)
                     PARAMETER="${@:$COUNTER:1}"
@@ -120,7 +132,7 @@ read_parameters(){
          done
  fi
              if [[ $CMD == "" ]];then
-               CMD="$( printf 'exec\nedit\nlog\ndelete\nport-forward' | fzf -1 --ansi)";
+               CMD="$( printf 'exec\nedit\nlog\nlog-follow\ndelete\nport-forward' | fzf -1 --ansi)";
              fi
 
     if [[ "$PARAMETER" == " " ]];then
@@ -137,6 +149,8 @@ echo "namespace: $NS";
                  edit
                 elif [[ $CMD == "log" || $CMD == "logs" ]];then
                  log
+                elif [[ $CMD == "log-follow" ]];then
+                 logFollow
                 elif [[ $CMD == "delete" ]];then
                   delete
                 elif [[ $CMD == "port-forward" ]];then
