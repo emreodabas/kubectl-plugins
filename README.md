@@ -272,9 +272,9 @@ REVISION  CHANGE-CAUSE
 ```console
 $ kubectl interactive
 ..
-$ kubectl interactive exec|edit|log|delete|port-forward
+$ kubectl interactive exec|edit|log|log-follow|delete|port-forward
 ..
-$ kubectl interactive exec|edit|log|delete|port-forward <namespace>
+$ kubectl interactive exec|edit|log|log-follow|delete|port-forward <namespace>
 ```
 
 ![kubectl-it exec GIF](img/kubectl_it_exec.gif)
