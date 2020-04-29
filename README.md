@@ -9,12 +9,13 @@ You can easily do bulk operations on all resource types like deployments, servic
  
  `kubectl bulk <get resourceTypes> (get|list|create|update|delete|remove|rollout) <command parameters>`  
  ```
- kubectl bulk deploy -n test get image   
+ kubectl bulk pod --all-namespace get image
+ kubectl bulk deployment -n test get allowPrivilegeEscalation   
  ```
 <b> Now you can use % wild card in get resource types </b>
 
 ```
-kubectl bulk deploy my-deploy% -n test update mylabel newValue
+kubectl bulk po my-pod% -n test update mylabel newValue
 ```
 
 `Bulk plugin` has 5 main abilities for now :-)
@@ -83,7 +84,7 @@ kubectl bulk deploy my-deploy% -n test update mylabel newValue
  
   #### Sample
   ```console 
-$ kubectl bulk deploy -n test 
+$ kubectl bulk deployment -n test 
 apiVersion: v1
 items:
 - apiVersion: extensions/v1beta1
@@ -122,12 +123,11 @@ All definitions will be written in file.json
  #### Sample
  
   ```console 
-$ kubectl bulk deploy -n test create namespace test staging 
+** Copy all statefulset from test to staging namespaces
+$ kubectl bulk statefulset -n test create namespace test staging 
 creating new resource with changing namespace: test to namespace: staging for all  deploy
 deployment.extensions/sample-app created
 deployment.extensions/another-sample-app created
-
-$ kubectl bulk service create name service1 service2
 
 
  ```
@@ -242,11 +242,11 @@ deployment.extensions/deploy-2 replaced
  #### Sample
  
   ```console 
-$ kubectl bulk deploy -n test rollout undo
+$ kubectl bulk deployment -n test rollout undo
  'deploy's are being rollout undo
  deployment.extensions/deploy-1
 deployment.extensions/deploy-2
-$  kubectl bulk deploy -n test rollout history
+$  kubectl bulk deployment -n test rollout history
 deployment.extensions/deploy-1 
 REVISION  CHANGE-CAUSE
 1         <none>
