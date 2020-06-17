@@ -20,6 +20,48 @@ CMD_INDEX=0;
 GREP_CMD="";
 GREP_NAMES="";
 
+samples() {
+
+ cat <<"EOF"
+
+USAGE:
+    kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout|remove|scale [<parameters>]
+
+    #############################################################################################################
+    ##########                                   SAMPLES                                                #########
+    #############################################################################################################
+
+
+    GET     -->   kubectl bulk <resourceType> [<parameters>] get [<fields>]
+                  + kubectl bulk hpa -n myspace get minReplicas maxReplicas
+
+    LIST    -->   kubectl bulk <resourceType> [<parameters>] list <optional:filename> <optional:format(json|yaml)>
+                  + kubectl bulk deployment list all_deploy.json json
+                  + kubectl bulk deployment list json
+
+    CREATE  -->   kubectl bulk <resourceType>[<parameters>] create parameterName oldValue newValue 
+                  + kubectl bulk service -n test create namespace test newtest
+    
+    UPDATE  -->   kubectl bulk <resourceType>[<parameters>] update parameterName newValue
+                  + kubectl bulk pods -l app=nginx update image nginx:1.16
+                  kubectl bulk <resourceType>[<parameters>] update parameterName newValue  
+                  + kubectl bulk pods -l app=nginx update image nginx:1.15 nginx:1.16
+    
+    DELETE  -->   kubectl bulk <resourceType> [<parameters>] delete
+                  + kubectl bulk serviceaccount delete 
+    
+    REMOVE  -->   kubectl bulk <resourceType> [<parameters>] remove <field> <value>
+                  + kubectl bulk configMap remove label1
+    
+    ROLLOUT -->   kubectl bulk <resourceType> [<parameters>] rollout history|pause|resume|status|undo <rollout parameters>
+                  + kubectl bulk daemonsets -n kube-system rollout history 
+                  + kubectl bulk daemonsets -n kube-system rollout undo
+
+EOF
+
+}
+
+
 
 usage() {
 
@@ -191,6 +233,7 @@ fi
 
 action_call() {
 
+
  if [[ $CMD  ==  "create" ]];then
       create;
     elif [[ $CMD == "update" ]];then
@@ -216,6 +259,11 @@ if [[ "$#" -lt 1 ]]; then
         usage "";
         exit 0
 fi
+
+case  $1 in "--h"|"--help"|"-h"|"-help"|"help" )
+    samples;
+    exit 0
+esac
 
  COUNTER=1
  IS_GET=true
