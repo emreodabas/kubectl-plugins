@@ -29,7 +29,7 @@ fi
  cat <<"EOF"
 
 USAGE:
-    kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout|remove  [<parameters>]
+    kubectl bulk <resourceType>[<parameters>] get|list|create|update|delete|rollout|remove|scale [<parameters>]
     ex. kubectl bulk hpa -n myspace get minReplicas maxReplicas
 EOF
 
@@ -97,6 +97,7 @@ else
  fi
 
  eval "kubectl get ${GET_CMD} ${CMD_DETAIL}";
+
 }
 
 create() {
@@ -143,6 +144,14 @@ eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name}| xargs kubect
 
 }
 
+
+scale() {
+echo "'$RESOURCE_TYPE's are being scale $CH_CMD";
+CH_CMD_WHITESPACE="$(echo -e "${CH_CMD}" | tr -d '[:space:]')";
+eval "kubectl get ${GET_CMD} -o jsonpath={.items[*].metadata.name} | xargs kubectl scale ${GET_CMD}  --replicas=${CH_CMD_WHITESPACE}";
+
+}
+
 remove() {
 CMD_DETAIL="";
  if [[ "$ACTION_P2" != "" ]];then
@@ -163,7 +172,7 @@ delete() {
 DELETE_PARAMS="";
 
 if [[ "$ACTION_P3" != "" ]];then
-       DELETE_PARAMS="$ACTION_P1" "$ACTION_P2" "$ACTION_P3";
+       DELETE_PARAMS="$ACTION_P1" "$ACTION_P2" "$ACTION_P3";35.239.14.52
 elif [[ "$ACTION_P2" != "" ]];then
           DELETE_PARAMS="$ACTION_P1" "$ACTION_P2";
 elif [[ "$ACTION_P1" != "" ]];then
@@ -196,6 +205,8 @@ action_call() {
       rollout;
     elif [[ $CMD == "delete" ]];then
       delete;
+    elif [[ $CMD == "scale" ]];then
+      scale;    
     fi
 }
 
@@ -210,7 +221,7 @@ fi
  IS_GET=true
  RESOURCE_TYPE="$1"
          while [ $COUNTER -le "$#" ]; do
-            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"update"|"remove"|"rollout"|"delete")
+            case "${@:$COUNTER:1}" in  "get"|"list"|"create"|"update"|"remove"|"rollout"|"delete"|"scale" )
                   CMD=${@:$COUNTER:1};
                   CMD_INDEX=$COUNTER;
                  IS_GET=false;
