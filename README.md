@@ -26,7 +26,8 @@ kubectl bulk po my-pod% -n test update mylabel newValue
  - `bulk .. update` updates bulk resource definitions fields.
  - `bulk .. delete` delete bulk resources with delete parameters.
  - `bulk .. remove` remove bulk resource definitions fields.
- - `bulk .. rollout` rollouts given processes.  
+ - `bulk .. rollout` rollouts given processes. 
+ - `bulk .. scale` scale given resources. 
 
 
 ### Details
@@ -224,7 +225,8 @@ deployment.extensions/deploy-2 replaced
 
  ```
 </details> 
-  <details>
+
+<details>
  <summary><b>bulk rollout</b></summary>
 
  ##   **`bulk rollout`**  
@@ -258,6 +260,33 @@ REVISION  CHANGE-CAUSE
 
  ```
 </details> 
+
+
+  <details>
+ <summary><b>bulk scale</b></summary>
+
+ ##   **`bulk scale`**  
+`bulk .. scale` gives you scaling ability to your resources    
+
+ #### Usage
+ 
+ ``` 
+  # scale for all resources that requested 
+  kubectl bulk <resourceType> [<parameters>] scale replicaNumber
+ ``` 
+ 
+ #### Sample
+ 
+  ```console 
+$ kubectl bulk deployment -n test scale 3
+ 'deploy's are being scale  1
+deployment.extensions/my-deploy scaled
+deployment.extensions/test-deploy scaled
+deployment.extensions/this-deploy scaled
+
+ ```
+</details> 
+
 
 # kubectl it ~~ interactive 
  `kubectl it` execute exec, edit, delete and log commands with interactive selection.
