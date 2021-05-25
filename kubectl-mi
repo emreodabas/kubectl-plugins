@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+[[ -n $DEBUG ]] && set -x
+
+set -eou pipefail
+IFS=$'\n\t'
+
+INFO='Select multiple context (up to 3 for diff) with TAB then ENTER '
+DEBUG=true
+CMD=""
+SCRIPT="echo 'NO_CMD'"
+CHECK_SCRIPT=""
+NS=""
+SELECTED=""
+INPUT=""
+CTX_LIST=""
+
+usage() {
+
+if [ -n "$1" ] ; then
+    echo $1;
+fi
+ cat <<"EOF"
+
+USAGE:
+    kubectl mi scale|diff|log <namespace>
+EOF
+
+}
+
+
+it_select(){
+echo "parameter $1 "
+SELECTED="$( ${P1} | fzf -1 --ansi )"
+}
+
+log(){
+
+POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
+echo $POD;
+
+CONTAINER="$(kubectl get pod $POD -n $NS -o go-template --template '{{range .spec.containers}}{{.name}}{{"\n"}}{{end}}' | fzf -1 --ansi )"
+echo $CONTAINER;
+
+SCRIPT="kubectl logs $POD -n $NS -c $CONTAINER "
+
+}
+
+difference(){
+  RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles' | fzf -1 --ansi)";
+  RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+  INDEX=0
+  LENGTH=${#CTX_LIST[@]}
+
+  if [[ $LENGTH -gt 3 && $CMD == "scale" ]]; then
+      echo "!!! You could only check differences of resource up to 3 cluster. This will run for first 3 cluster.!!!!"
+  fi
+
+  while [ "$INDEX" -lt "$LENGTH" ]; do
+    switch_context ${CTX_LIST[$INDEX]}
+    eval "kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS -o yaml > temp$INDEX.yaml"
+    let INDEX=INDEX+1;
+  done;
+
+  if [[ $INDEX == 3 ]];then
+    eval "diff3 temp0.yaml temp1.yaml temp2.yaml"
+    eval "rm temp0.yaml temp1.yaml temp2.yaml"
+  else
+    eval "diff -ys --suppress-common-lines temp0.yaml temp1.yaml"
+    eval "rm temp0.yaml temp1.yaml"
+  fi
+
+}
+
+scale(){
+  RESOURCE_TYPE="$( printf 'deployments\nstatefulsets\nreplicationcontrollers\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
+  RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+  echo "Current Status:"
+  eval "kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS"
+  echo "Enter replica count:"
+  read SCALE
+  SCRIPT="kubectl scale $RESOURCE_TYPE $RESOURCE1 -n $NS --replicas=$SCALE"
+  CHECK_SCRIPT="kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS"
+  run_cmd_on_multiple_context
+}
+
+select_contexts(){
+  CTX_LIST=($(eval "kubectl config get-contexts -o=name" | sort -n | fzf --ansi -m --header=${INFO} | sed "s/ /\n/g" ));
+  if [[ -z "${CTX_LIST}" ]]; then
+    echo 2>&1 "error: you did not choose any of the options"
+    exit 1
+  fi
+}
+
+select_ns(){
+   if [[ "$PARAMETER" == " " ]];then
+     NS="$(kubectl get ns --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 )"
+  else
+     NS="$PARAMETER"
+  fi
+    echo "namespace: $NS";
+}
+
+switch_context(){
+  echo "Context switched to $1"
+  kubectl config use-context $1
+}
+
+
+run_cmd_on_multiple_context(){
+
+  INDEX=0
+  LENGTH=${#CTX_LIST[@]}
+  while [ "$INDEX" -lt "$LENGTH" ]; do
+    if [[ $INDEX != 0 ]]; then
+      switch_context ${CTX_LIST[$INDEX]}
+    fi
+    eval $SCRIPT
+    if [[ $CHECK_SCRIPT != "" ]]; then
+      eval $CHECK_SCRIPT
+    fi
+    let INDEX=INDEX+1;
+  done;
+}
+
+
+get_interactive_parameter(){
+
+    response=
+
+    echo -n "$1 > "
+    read response
+    if [ -n "$response" ]; then
+        INPUT=$response
+    fi
+
+}
+
+read_parameters(){
+
+ COUNTER=1
+ PARAMETER=" ";
+
+ if [[ "$#" == 1 ]]; then
+    CMD=$1;
+    elif [[ "$#" -gt 1 ]]; then
+        while [ $COUNTER -le "$#" ]; do
+               case "${@:$COUNTER:1}" in  "scale"|"diff"|"log")
+                    CMD=${@:$COUNTER:1} ;;
+            *)
+                    PARAMETER="${@:$COUNTER:1}"
+                esac
+                let COUNTER=COUNTER+1
+         done
+ fi
+
+ if [[ $CMD == "" ]];then
+   CMD="$( printf 'scale\ndiff\nlog' | fzf -1 --ansi)";
+ fi
+
+  select_contexts
+  switch_context ${CTX_LIST[0]}
+  select_ns
+
+  if [[ $CMD  ==  "scale" ]];then
+     scale
+  elif [[ $CMD == "diff" ]];then
+     difference
+  elif [[ $CMD == "log" || $CMD == "logs" ]];then
+     log
+  elif [[ $CMD == "help" || $CMD == "-help" || $CMD == "-h" ]];then
+    usage
+  fi
+
+}
+
+main() {
+    read_parameters "$@";
+}
+
+main "$@"

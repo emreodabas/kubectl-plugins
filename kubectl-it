@@ -21,7 +21,7 @@ fi
  cat <<"EOF"
 
 USAGE:
-    kubectl it exec|edit|delete|log|port-forward <namespace>
+    kubectl it exec|edit|delete|log|port-forward|scale <namespace>
 EOF
 
 }
@@ -66,8 +66,7 @@ eval "kubectl logs $POD -n $NS -c $CONTAINER -f "
 }
 
 delete(){
-RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
-
+RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles' | fzf -1 --ansi)";
 RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
 echo $RESOURCE1
 eval "kubectl delete $RESOURCE_TYPE $RESOURCE1 -n $NS"
@@ -86,7 +85,6 @@ eval "kubectl exec -ti $POD -n $NS -c $CONTAINER -- /bin/sh"
 
 portForward(){
 
-
 POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
 echo $POD;
 
@@ -96,11 +94,20 @@ get_interactive_parameter " Your Port ?"
 YOUR_PORT=$INPUT
 
 eval "kubectl port-forward  $POD -n $NS  $YOUR_PORT:$POD_PORT "
-
-
 }
 
+scale(){
+RESOURCE_TYPE="$( printf 'deployments\nstatefulsets\nreplicationcontrollers\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
 
+RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+echo "Current Status:"
+eval "kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS"
+echo "Enter replica count:"
+read SCALE
+eval "kubectl scale $RESOURCE_TYPE $RESOURCE1 -n $NS --replicas=$SCALE"
+echo "Status:"
+eval "kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS"
+}
 
 get_interactive_parameter(){
 
@@ -123,7 +130,7 @@ read_parameters(){
     CMD=$1;
     elif [[ "$#" -gt 1 ]]; then
         while [ $COUNTER -le "$#" ]; do
-               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"log-follow"|"delete"|"logs|port-forward")
+               case "${@:$COUNTER:1}" in  "exec"|"edit"|"log"|"log-follow"|"delete"|"logs"|"port-forward"|"scale")
                     CMD=${@:$COUNTER:1} ;;
             *)
                     PARAMETER="${@:$COUNTER:1}"
@@ -132,7 +139,7 @@ read_parameters(){
          done
  fi
              if [[ $CMD == "" ]];then
-               CMD="$( printf 'exec\nedit\nlog\nlog-follow\ndelete\nport-forward' | fzf -1 --ansi)";
+               CMD="$( printf 'exec\nedit\nlog\nlog-follow\ndelete\nport-forward\nscale' | fzf -1 --ansi)";
              fi
 
     if [[ "$PARAMETER" == " " ]];then
@@ -153,15 +160,14 @@ echo "namespace: $NS";
                  logFollow
                 elif [[ $CMD == "delete" ]];then
                   delete
+                elif [[ $CMD == "scale" ]];then
+                  scale
                 elif [[ $CMD == "port-forward" ]];then
                   portForward
                 elif [[ $CMD == "help" || $CMD == "-help" || $CMD == "-h" ]];then
                   usage
                 fi
-
-
 }
-
 
 main() {
     read_parameters "$@";
