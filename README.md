@@ -344,7 +344,7 @@ Install krew plugin manager for kubectl.
 ```bash
 kubectl krew install bulk-action
 ```
-## Linux
+## Linux & Mac OS
 
  `Kubectl-plugins` are Bash scripts, it would be work in any POSIX environment that has Bash installed. 
  sed|grep|awk are prerequisite commands for `kubectl bulk`  
@@ -357,6 +357,8 @@ sudo git clone https://github.com/emreodabas/kubectl-plugins /opt/kubectl-plugin
 sudo ln -s /opt/kubectl-plugins/kubectl-bulk /usr/local/bin/kubectl-bulk
 sudo ln -s /opt/kubectl-plugins/kubectl-ixec /usr/local/bin/kubectl-ixec
 sudo ln -s /opt/kubectl-plugins/kubectl-it /usr/local/bin/kubectl-it
+sudo ln -s /opt/kubectl-plugins/kubectl-mi /usr/local/bin/kubectl-mi
+
 ```
 
 ### fzf Installation
