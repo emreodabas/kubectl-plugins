@@ -15,6 +15,14 @@ SELECTED=""
 INPUT=""
 CTX_LIST=""
 
+# handle ctrl+c and remove temp files
+trap ctrl_c INT
+
+function ctrl_c() {
+     #   echo "Temp files removing"
+        eval "rm output.log"
+}
+
 usage() {
 
 if [ -n "$1" ] ; then
@@ -28,6 +36,37 @@ EOF
 
 }
 
+
+get_state(){
+RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
+SCRIPT=""
+CHECK_SCRIPT="kubectl get $RESOURCE_TYPE -n $NS -o wide -w >> output.log &"
+run_cmd_on_multiple_context
+tail_output
+}
+
+exec(){
+RESOURCE_TYPE="$( printf 'deployments\nstatefulsets\ndaemonsets' | fzf -1 --ansi)";
+RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+#-o json | jq '.spec.template.spec.containers[].name'
+POD="$(kubectl get pods -n $NS --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf -1 --ansi)"
+echo $POD;
+
+CONTAINER="$(kubectl get pod $POD -n $NS -o go-template --template '{{range .spec.containers}}{{.name}}{{"\n"}}{{end}}' | fzf -1 --ansi )"
+echo $CONTAINER;
+
+SCRIPT="kubectl exec -ti $POD -n $NS -c $CONTAINER -- /bin/sh"
+run_cmd_on_multiple_context
+}
+
+edit(){
+RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
+RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+SCRIPT="kubectl edit $RESOURCE_TYPE $RESOURCE1 -n $NS"
+CHECK_SCRIPT="kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS -o wide -w >> output.log &"
+run_cmd_on_multiple_context
+tail_output
+}
 
 it_select(){
 echo "parameter $1 "
@@ -80,8 +119,9 @@ scale(){
   echo "Enter replica count:"
   read SCALE
   SCRIPT="kubectl scale $RESOURCE_TYPE $RESOURCE1 -n $NS --replicas=$SCALE"
-  CHECK_SCRIPT="kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS"
+  CHECK_SCRIPT="kubectl get po -n $NS -o wide -w >> output.log &"
   run_cmd_on_multiple_context
+  tail_output
 }
 
 select_contexts(){
@@ -117,12 +157,16 @@ run_cmd_on_multiple_context(){
     fi
     eval $SCRIPT
     if [[ $CHECK_SCRIPT != "" ]]; then
-      eval $CHECK_SCRIPT
+      eval "nohup echo ${CTX_LIST[$INDEX]} >> output.log | $CHECK_SCRIPT"
     fi
     let INDEX=INDEX+1;
   done;
 }
 
+tail_output(){
+  eval "tail -f output.log"
+  rm output.log
+}
 
 get_interactive_parameter(){
 
@@ -145,7 +189,7 @@ read_parameters(){
     CMD=$1;
     elif [[ "$#" -gt 1 ]]; then
         while [ $COUNTER -le "$#" ]; do
-               case "${@:$COUNTER:1}" in  "scale"|"diff"|"log")
+               case "${@:$COUNTER:1}" in  "scale"|"diff"|"log"|"exec"|"check-state"|"edit")
                     CMD=${@:$COUNTER:1} ;;
             *)
                     PARAMETER="${@:$COUNTER:1}"
@@ -155,7 +199,7 @@ read_parameters(){
  fi
 
  if [[ $CMD == "" ]];then
-   CMD="$( printf 'scale\ndiff\nlog' | fzf -1 --ansi)";
+   CMD="$( printf 'scale\ndiff\nlog\nedit\ncheck-state' | fzf -1 --ansi)";
  fi
 
   select_contexts
@@ -166,6 +210,12 @@ read_parameters(){
      scale
   elif [[ $CMD == "diff" ]];then
      difference
+  elif [[ $CMD == "edit" ]];then
+     edit
+  elif [[ $CMD == "check-state" ]];then
+     get_state
+  elif [[ $CMD == "exec" ]];then
+     exec
   elif [[ $CMD == "log" || $CMD == "logs" ]];then
      log
   elif [[ $CMD == "help" || $CMD == "-help" || $CMD == "-h" ]];then
