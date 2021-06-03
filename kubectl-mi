@@ -40,7 +40,7 @@ EOF
 get_state(){
 RESOURCE_TYPE="$( printf 'pods\ndeployments\nconfigmaps\nservices\nstatefulsets\nendpoints\nevents\nlimitranges\npersistentvolumeclaims\npodtemplates\nreplicationcontrollers\nresourcequotas\nsecrets\nserviceaccounts\nhorizontalpodautoscalers\ncronjobs\njobs\ndaemonsets\ningresses\nnetworkpolicies\nreplicasets\nalertmanagers\nprometheuses\nprometheusrules\nservicemonitors\nnetworkpolicies\nrolebindings\nroles\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
 SCRIPT=""
-CHECK_SCRIPT="kubectl get $RESOURCE_TYPE -n $NS -o wide -w >> output.log &"
+CHECK_SCRIPT="kubectl get $RESOURCE_TYPE -n $NS -o wide -w >> output.log || true &"
 run_cmd_on_multiple_context
 tail_output
 }
@@ -112,16 +112,27 @@ difference(){
 }
 
 scale(){
+
   RESOURCE_TYPE="$( printf 'deployments\nstatefulsets\nreplicationcontrollers\ndaemonsets\nreplicasets' | fzf -1 --ansi)";
-  RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
-  echo "Current Status:"
-  eval "kubectl get $RESOURCE_TYPE $RESOURCE1 -n $NS"
-  echo "Enter replica count:"
-  read SCALE
-  SCRIPT="kubectl scale $RESOURCE_TYPE $RESOURCE1 -n $NS --replicas=$SCALE"
-  CHECK_SCRIPT="kubectl get po -n $NS -o wide -w >> output.log &"
-  run_cmd_on_multiple_context
-  tail_output
+  RESOURCES=($(eval "kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name}" | tr -s '[[:space:]]' '\n' | sort -n | fzf --ansi -m --header=${INFO} | sed "s/ /\n/g" ));
+# RESOURCE1="$( kubectl get $RESOURCE_TYPE -n $NS  --output=jsonpath={.items..metadata.name} | tr -s '[[:space:]]' '\n' | fzf --ansi -1 )"
+
+  INDX=0
+  LENGTH=${#RESOURCES[@]}
+  echo $LENGTH
+  while [ "$INDX" -lt "$LENGTH" ]; do
+    echo "Current Status:"
+    eval "kubectl get $RESOURCE_TYPE ${RESOURCES[$INDX]} -n $NS"
+    echo "Enter replica count:"
+    read SCALE
+    SCRIPT="kubectl scale $RESOURCE_TYPE ${RESOURCES[$INDX]} -n $NS --replicas=$SCALE"
+    CHECK_SCRIPT="kubectl get po -n $NS -o wide -w >> output.log &"
+    run_cmd_on_multiple_context
+    let INDX=INDX+1;
+  done;
+    tail_output
+
+
 }
 
 select_contexts(){
